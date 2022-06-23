@@ -73,7 +73,7 @@ class LegendTypeListAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LegendTypeAPIView(APIView):
+class LegendTypeDetailAPIView(APIView):
     permission_classes = (IsAdminUser, )
 
     def get(self, request, slug, format=None):

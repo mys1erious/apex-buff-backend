@@ -28,13 +28,13 @@ urlpatterns = [
     # {% url 'api:legend_types' %}
     path(
         route='legend_types/',
-        view=legend_views.LegendTypeAPIView.as_view(),
+        view=legend_views.LegendTypeListAPIView.as_view(),
         name='legend_types'
     ),
     # {% url 'api:legend_types' legend_type.slug %}
     path(
         route='legend_types/<slug:slug>/',
-        view=legend_views.LegendTypeAPIView.as_view(),
+        view=legend_views.LegendTypeDetailAPIView.as_view(),
         name='legend_types'
     )
 ]
