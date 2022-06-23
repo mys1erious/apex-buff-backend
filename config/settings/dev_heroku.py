@@ -16,6 +16,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
 
 
+ALLOWED_HOSTS += ['apex-buff-development.herokuapp.com']
+
+
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',
     'debug_toolbar.panels.versions.VersionsPanel',
