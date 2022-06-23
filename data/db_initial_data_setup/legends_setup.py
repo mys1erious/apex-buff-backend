@@ -12,7 +12,7 @@ def legends_data_from_file(file):
 
 
 def post_legend(url, legend):
-    response = requests.post(url+'/legends/', data=legend)
+    response = requests.post(url + '/legends/', data=legend)
     return response
 
 
@@ -22,8 +22,12 @@ def post_legends(url, data):
 
         if not response.ok:
             print(i, response.status_code, response.json())
+        else:
+            print(f'{i}. {legend.name}: Success')
 
 
 def setup():
+    url = HEROKU_DEV_BASE_API_URL  # Change this url depending on which base url u want to use
+        # (later rework for auto data adding)
     data = legends_data_from_file(PATH_TO_LEGENDS_JSON)
-    post_legends(BASE_API_URL, data)
+    post_legends(url, data)
