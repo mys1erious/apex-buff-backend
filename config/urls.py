@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import path, include
 from django.views.generic import TemplateView
-from rest_framework.permissions import AllowAny
 
+from rest_framework.permissions import AllowAny
 from rest_framework.schemas import get_schema_view
+from drf_spectacular.views import SpectacularAPIView
 
 from core import apiv1_urls
 
@@ -14,11 +15,11 @@ urlpatterns = [
         view=include(apiv1_urls),
         name='api'
     ),
-
     path(
         route='',
         view=lambda request: redirect('documentation')
     ),
+
     path(
         route='documentation/',
         view=TemplateView.as_view(
@@ -29,12 +30,7 @@ urlpatterns = [
     ),
     path(
         route='schema/',
-        view=get_schema_view(
-            title='Schema for Apex Buff',
-            description='Schema for API of Apex Legends (not official)',
-            version='1.0.0',
-            permission_classes=(AllowAny, )
-        ),
+        view=SpectacularAPIView.as_view(),
         name='schema'
     ),
     path(

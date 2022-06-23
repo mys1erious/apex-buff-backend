@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+    'drf_spectacular',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -137,5 +138,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAdminUser',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Schema for Apex Buff API',
+    'DESCRIPTION': 'Schema for API of Apex Legends (not official)',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    'SCHEMA_PATH_PREFIX': r'/api/v[0-9]',
+
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    # None will default to DRF's AUTHENTICATION_CLASSES
+    'SERVE_AUTHENTICATION': None,
 }
