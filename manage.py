@@ -11,7 +11,7 @@ load_dotenv()
 def main():
     """Run administrative tasks."""
     os.environ.setdefault(
-        'DJANGO_SETTINGS_MODULE', f'config.settings.local')  # Change settings to be more scalable(not hardcoded local)
+        'DJANGO_SETTINGS_MODULE', f'config.settings.dev_heroku')  # Change settings to be more scalable(not hardcoded local)
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
