@@ -38,10 +38,10 @@ apex_buff/weapons/models.py                                                    1
 apex_buff/weapons/tests.py                                                     1      0   100%
 config/__init__.py                                                             0      0   100%
 config/asgi.py                                                                 4      4     0%
-config/settings/base.py                                                       32      3    91%
+config/settings/base.py                                                       31      3    90%
 config/settings/local.py                                                       6      0   100%
-config/urls.py                                                                 4      0   100%
-config/wsgi.py                                                                 4      4     0%
-manage.py                                                                     14      2    86%
+config/urls.py                                                                 8      0   100%
+config/wsgi.py                                                                 3      3     0%
+manage.py                                                                     11      2    82%
 ----------------------------------------------------------------------------------------------
-TOTAL                                                                        277     34    88%
+TOTAL                                                                        276     33    88%

@@ -12,7 +12,7 @@ from .serializers import LegendSerializer
 
 class LegendListCreateAPIView(APIView):
     # permission_classes = (IsAdminOrIsAuthenticatedReadOnly,)
-    permission_classes = (IsAdminUser, )
+    permission_classes = (AllowAny, )
 
     def get(self, request, *args, **kwargs):
         legends = Legend.objects.all()
@@ -29,7 +29,7 @@ class LegendListCreateAPIView(APIView):
 
 class LegendRetrieveUpdateDestroyAPIView(APIView):
     #permission_classes = (IsAdminOrIsAuthenticatedReadOnly, )
-    permission_classes = (IsAdminUser, )
+    permission_classes = (AllowAny, )
 
     def get(self, request, slug, format=None):
         legend = get_object_or_404(Legend, slug=slug)
@@ -57,7 +57,7 @@ class LegendRetrieveUpdateDestroyAPIView(APIView):
         return Response(context, status.HTTP_204_NO_CONTENT)
 
 
-# Save with generics
+# With generics
 # class LegendListCreateAPIView(ListCreateAPIView):
 #     queryset = Legend.objects.all()
 #     permission_classes = (AllowAny, )
