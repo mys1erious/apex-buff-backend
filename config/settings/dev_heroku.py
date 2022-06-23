@@ -1,7 +1,6 @@
 from .base import *
 
-
-from .base import *
+import django_on_heroku
 
 
 DEBUG = True
@@ -36,3 +35,5 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
 ]
 
+
+django_on_heroku.settings(locals())
