@@ -31,9 +31,8 @@ class LegendAPITests(TransactionTestCase):
         response = self.client.get(self.detail_url_obj_1)
         data = json.loads(response.content)
         content = {
-            'id': 1,
             'name': 'Some Name1',
-            'icon': '/no_image.png',
+            'icon': '/media/no_image.png',
             'slug': 'some-name1',
             'role': '',
             'real_name': '',
@@ -41,7 +40,8 @@ class LegendAPITests(TransactionTestCase):
             'age': None,
             'homeworld': '',
             'legend_type': None,
-            'lore': ''
+            'lore': '',
+            'abilities': ''
         }
         self.assertEqual(data, content)
 
@@ -52,9 +52,8 @@ class LegendAPITests(TransactionTestCase):
 
         data = json.loads(response.content)
         content = {
-            'id': 3,
             'name': 'Some Name3',
-            'icon': '/no_image.png',
+            'icon': '/media/no_image.png',
             'slug': 'some-name3',
             'role': '',
             'real_name': '',
@@ -62,12 +61,13 @@ class LegendAPITests(TransactionTestCase):
             'age': None,
             'homeworld': '',
             'legend_type': None,
-            'lore': ''
+            'lore': '',
+            'abilities': ''
         }
 
         self.assertEquals(data, content)
         self.assertEquals(Legend.objects.count(), 3)
-    #
+
     def test_put(self):
         put_data = {'name': 'Some Name1 Updated', 'gender': 'nb'}
         response = self.client.put(self.detail_url_obj_1, put_data, content_type='application/json')
@@ -76,9 +76,8 @@ class LegendAPITests(TransactionTestCase):
         data = json.loads(response.content)
 
         content = {
-            'id': 1,
             'name': 'Some Name1 Updated',
-            'icon': '/no_image.png',
+            'icon': '/media/no_image.png',
             'slug': 'some-name1-updated',
             'role': '',
             'real_name': '',
@@ -86,7 +85,8 @@ class LegendAPITests(TransactionTestCase):
             'age': None,
             'homeworld': '',
             'legend_type': None,
-            'lore': ''
+            'lore': '',
+            'abilities': ''
         }
 
         self.assertEquals(data, content)
