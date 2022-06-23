@@ -1,0 +1,22 @@
+Scrape:
+1. Find and add scraping for icons from another source
+2. Add scraping for all other Legend fields(except legend_type)
+3. Make Scraper for LegendType Model
+4. Make Scraper for Abilities
+5.
+
+
+Backend:
+1. Add icons to static files and to legends on creation
+2. Add auto linking of LegendType to Legend on Legend creation by given LegendType name
+3. Make /legends/<legend_slug>/ability/<ability_slug>/ endpoint to handle abilities for each legend (check ref in 2 scoops of django)
+4.
+
+- WeaponsApp
+
+
+Other:
+1. Add Docker
+2. Add Gunicorn, Nginx
+3. Celery, Redis?
+4. Deploy on Heroku?
