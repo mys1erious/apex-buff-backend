@@ -10,9 +10,8 @@ INSTALLED_APPS += ['debug_toolbar']
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'staticfiles')
-
-MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
+MEDIA_URL = '/media/'
 
 
 ALLOWED_HOSTS += ['apex-buff-development.herokuapp.com']

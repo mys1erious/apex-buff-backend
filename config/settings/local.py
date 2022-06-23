@@ -17,6 +17,11 @@ DATABASES = {
 }
 
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
+MEDIA_URL = '/media/'
+
+
 INSTALLED_APPS += ['debug_toolbar']
 
 

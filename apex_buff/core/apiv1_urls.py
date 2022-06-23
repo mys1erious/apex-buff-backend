@@ -15,5 +15,17 @@ urlpatterns = [
         route='legends/<slug:slug>/',
         view=legend_views.LegendRetrieveUpdateDestroyAPIView.as_view(),
         name='legends'
+    ),
+    # {% url 'api:legend_types' %}
+    path(
+        route='legend_types/',
+        view=legend_views.LegendTypeListCreateAPIView.as_view(),
+        name='legend_types'
+    ),
+    # {% url 'api:legend_types' legend_type.slug %}
+    path(
+        route='legend_types/<slug:slug>/',
+        view=legend_views.LegendTypeRetrieveUpdateDestroyAPIView.as_view(),
+        name='legend_types'
     )
 ]

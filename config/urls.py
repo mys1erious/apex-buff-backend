@@ -1,13 +1,16 @@
+import os
+
 from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.conf import settings
+from django.conf.urls.static import static
 
-from rest_framework.permissions import AllowAny
-from rest_framework.schemas import get_schema_view
 from drf_spectacular.views import SpectacularAPIView
 
 from core import apiv1_urls
+
 
 urlpatterns = [
     path(
@@ -39,3 +42,9 @@ urlpatterns = [
     ),
     path('admin/', admin.site.urls),
 ]
+
+
+# Only for local dev testing
+if os.getenv('DJANGO_SETTINGS_MODULE') == 'config.settings.local':
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
