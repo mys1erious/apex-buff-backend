@@ -10,8 +10,8 @@ class LegendTypeSerializer(serializers.ModelSerializer):
 
 
 class LegendSerializer(serializers.ModelSerializer):
-    abilities = serializers.CharField(default='')  # For now
-    legend_type = LegendTypeSerializer(many=False)
+    abilities = serializers.CharField(default='', read_only=True)  # For now
+    legend_type = LegendTypeSerializer(many=False, read_only=True)
 
     class Meta:
         model = Legend
@@ -20,3 +20,7 @@ class LegendSerializer(serializers.ModelSerializer):
             'real_name', 'gender', 'age', 'homeworld',
             'lore', 'legend_type', 'abilities'
         ]
+
+
+class LegendLegendTypeSerializer(serializers.Serializer):
+    legend_type = serializers.CharField()

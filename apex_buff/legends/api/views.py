@@ -7,10 +7,10 @@ from rest_framework.views import APIView
 
 from core.permissions import IsAdminOrIsAuthenticatedReadOnly
 from ..models import Legend, LegendType
-from .serializers import LegendSerializer, LegendTypeSerializer
+from .serializers import LegendSerializer, LegendTypeSerializer, LegendLegendTypeSerializer
 
 
-class LegendListCreateAPIView(APIView):
+class LegendListAPIView(APIView):
     # permission_classes = (IsAdminOrIsAuthenticatedReadOnly,)
     permission_classes = (AllowAny, )
 
@@ -27,7 +27,7 @@ class LegendListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LegendRetrieveUpdateDestroyAPIView(APIView):
+class LegendDetailAPIView(APIView):
     #permission_classes = (IsAdminOrIsAuthenticatedReadOnly, )
     permission_classes = (AllowAny, )
 
@@ -57,7 +57,7 @@ class LegendRetrieveUpdateDestroyAPIView(APIView):
         return Response(context, status=status.HTTP_204_NO_CONTENT)
 
 
-class LegendTypeListCreateAPIView(APIView):
+class LegendTypeListAPIView(APIView):
     permission_classes = (IsAdminUser, )
 
     def get(self, request, *args, **kwargs):
@@ -73,7 +73,7 @@ class LegendTypeListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LegendTypeRetrieveUpdateDestroyAPIView(APIView):
+class LegendTypeAPIView(APIView):
     permission_classes = (IsAdminUser, )
 
     def get(self, request, slug, format=None):
@@ -97,6 +97,39 @@ class LegendTypeRetrieveUpdateDestroyAPIView(APIView):
         legend_type.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class LegendLegendTypeDetailAPIView(APIView):
+    def get(self, request, slug, *args, **kwargs):
+        legend = get_object_or_404(Legend, slug=slug)
+        legend_type_serializer = LegendTypeSerializer(legend.legend_type, many=False)
+        return Response(legend_type_serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, slug, *args, **kwargs):
+        context = {}
+
+        legend = get_object_or_404(Legend, slug=slug)
+        legend_type_serializer = LegendLegendTypeSerializer(request.data, many=False)
+
+        legend_type = legend_type_serializer.data.pop('legend_type')
+        if legend_type in LegendType.Names:
+            legend_type = LegendType.objects.get(name=legend_type)
+            legend.legend_type = legend_type
+            legend.save()
+
+            context['message'] = f'Legend type has successfully been updated to {legend_type}'
+            return Response(LegendTypeSerializer(legend.legend_type, many=False).data, status=status.HTTP_200_OK)
+
+        context['message'] = f'Wrong legend type: {legend_type}.\n' \
+                             f'Allowed legend types:\n' + \
+                             ', '.join([LegendType.Names.choices[i][0] for i in range(len(LegendType.Names))])
+        return Response(data=context, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, slug, *args, **kwargs):
+        legend = get_object_or_404(Legend, slug=slug)
+        legend.legend_type = None
+        legend.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # With generics
 # class LegendListCreateAPIView(ListCreateAPIView):

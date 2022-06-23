@@ -83,6 +83,7 @@ class Legend(models.Model):
     legend_type = models.ForeignKey(
         to=LegendType,
         on_delete=models.SET_NULL,
+        blank=True,
         null=True
     )
     lore = models.TextField(blank=True)
