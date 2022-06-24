@@ -164,4 +164,4 @@ cython_debug/
 .idea/
 geckodriver.log
 coverage_report.txt
-
+todo.txt
