@@ -135,6 +135,8 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
 MEDIA_URL = '/media/'
 
+STORAGE_BASE_URL = MEDIA_URL
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

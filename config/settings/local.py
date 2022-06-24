@@ -1,5 +1,9 @@
 from .base import *
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 DEBUG = True
 EMAIL_BACKEND = 'django.Core.mail.backends.console.EmailBackend'
@@ -17,14 +21,19 @@ DATABASES = {
 }
 
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
-MEDIA_URL = '/media/'
+INSTALLED_APPS += ['debug_toolbar', 'cloudinary']
 
 
-INSTALLED_APPS += ['debug_toolbar']
+# Cloudinary
+cloudinary.config(
+  cloud_name=get_env_variable('CLOUDINARY_CLOUD_URL'),
+  api_key=get_env_variable('CLOUDINARY_API_KEY'),
+  api_secret=get_env_variable('CLOUDINARY_API_SECRET')
+)
+STORAGE_BASE_URL = f'res.cloudinary.com/{get_env_variable("CLOUDINARY_CLOUD_URL")}'
 
 
+# Debug Toolbar
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
 
