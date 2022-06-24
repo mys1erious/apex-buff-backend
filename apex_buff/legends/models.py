@@ -65,7 +65,15 @@ class Legend(models.Model):
         max_length=50,
         unique=True
     )
-    icon = CloudinaryField('image')
+    icon = CloudinaryField(
+        'image',
+        use_filename=True,
+        unique_filename=False,
+        folder='legends/',
+        overwrite=False,
+        blank=True,
+        default='no_image'
+    )
     slug = models.SlugField(unique=True, blank=True)
 
     role = models.CharField(
