@@ -99,6 +99,8 @@ class LegendTypeDetailAPIView(APIView):
 
 
 class LegendLegendTypeDetailAPIView(APIView):
+    permission_classes = (AllowAny, )
+
     def get(self, request, slug, *args, **kwargs):
         legend = get_object_or_404(Legend, slug=slug)
         legend_type_serializer = LegendTypeSerializer(legend.legend_type, many=False)

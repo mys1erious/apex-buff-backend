@@ -18,6 +18,13 @@ class LegendType(models.Model):
         OFFENSIVE = 'offensive', 'Offensive'
         SUPPORT = 'support', 'Support'
 
+    # Possibly try with choices?
+    # class Icons(models.Choices):
+    #     RECON = 'recon', 'media/legends/recon'
+    #     DEFENSIVE = 'defensive', 'Defensive'
+    #     OFFENSIVE = 'offensive', 'Offensive'
+    #     SUPPORT = 'support', 'Support'
+
     name = models.CharField(
         max_length=20,
         unique=True,
@@ -28,7 +35,8 @@ class LegendType(models.Model):
     icon = models.ImageField(
         upload_to=legend_type_upload_to,
         default='no_image.png',
-        blank=True
+        blank=True,
+        # choices=Icons.choices
     )
     slug = models.SlugField(unique=True, blank=True)
 

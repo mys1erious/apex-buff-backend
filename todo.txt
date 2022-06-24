@@ -7,8 +7,7 @@ Scrape:
 
 
 Backend:
-1. Add icons to static files and to legends on creation
-2. Add auto linking of LegendType to Legend on Legend creation by given LegendType name
+1. Handle media files in heroku and fix legend_type images
 3. Make /legends/<legend_slug>/ability/<ability_slug>/ endpoint to handle abilities for each legend (check ref in 2 scoops of django)
 4.
 

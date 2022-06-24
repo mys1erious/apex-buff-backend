@@ -19,7 +19,7 @@ urlpatterns = [
     ),
     # {% url 'api:legends_add_type' legend.slug %}
     path(
-        route='legends/<slug:slug>/add-type/',
+        route='legends/<slug:slug>/type/',
         view=legend_views.LegendLegendTypeDetailAPIView.as_view(),
         name='legends_add_type'
     ),
