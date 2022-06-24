@@ -18,7 +18,7 @@ class LegendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Legend
         fields = [
-            'name', 'icon', 'slug', 'role',
+            'name', 'icon_url', 'slug', 'role',
             'real_name', 'gender', 'age', 'homeworld',
             'lore', 'legend_type', 'abilities'
         ]

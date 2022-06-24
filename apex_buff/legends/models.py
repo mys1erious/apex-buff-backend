@@ -104,6 +104,10 @@ class Legend(models.Model):
     )
     lore = models.TextField(blank=True)
 
+    @property
+    def icon_url(self):
+        return f'{settings.STORAGE_BASE_URL}/{self.icon}'
+
     def get_absolute_url(self):
         return reverse('legends', kwargs={'slug': self.slug})
 
