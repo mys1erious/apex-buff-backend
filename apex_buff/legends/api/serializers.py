@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import serializers
 
 from ..models import Legend, LegendType
@@ -6,7 +8,7 @@ from ..models import Legend, LegendType
 class LegendTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegendType
-        fields = ['name', 'icon']
+        fields = ['name', 'icon_url']
 
 
 class LegendSerializer(serializers.ModelSerializer):

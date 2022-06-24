@@ -61,6 +61,7 @@ class LegendTypeListAPIView(APIView):
     permission_classes = (IsAdminUser, )
 
     def get(self, request, *args, **kwargs):
+
         legend_types = LegendType.objects.all()
         serializer = LegendTypeSerializer(legend_types, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

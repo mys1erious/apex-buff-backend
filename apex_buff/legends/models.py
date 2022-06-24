@@ -1,14 +1,12 @@
+import os
+
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.conf import settings
 
-
-def legend_upload_to(instance, filename):
-    return f'legends/{filename}'
-
-
-def legend_type_upload_to(instance, filename):
-    return f'legends/types/{filename}'
+import cloudinary.uploader
+from cloudinary.models import CloudinaryField
 
 
 class LegendType(models.Model):
@@ -18,13 +16,6 @@ class LegendType(models.Model):
         OFFENSIVE = 'offensive', 'Offensive'
         SUPPORT = 'support', 'Support'
 
-    # Possibly try with choices?
-    # class Icons(models.Choices):
-    #     RECON = 'recon', 'media/legends/recon'
-    #     DEFENSIVE = 'defensive', 'Defensive'
-    #     OFFENSIVE = 'offensive', 'Offensive'
-    #     SUPPORT = 'support', 'Support'
-
     name = models.CharField(
         max_length=20,
         unique=True,
@@ -32,13 +23,19 @@ class LegendType(models.Model):
         choices=Names.choices,
     )
 
-    icon = models.ImageField(
-        upload_to=legend_type_upload_to,
-        default='no_image.png',
-        blank=True,
-        # choices=Icons.choices
+    icon = CloudinaryField(
+        'image',
+        use_filename=True,
+        unique_filename=False,
+        folder='legends/types/',
+        overwrite=False
     )
+
     slug = models.SlugField(unique=True, blank=True)
+
+    @property
+    def icon_url(self):
+        return f'{settings.STORAGE_BASE_URL}/{self.icon}'
 
     def get_absolute_url(self):
         return reverse('legend_types', kwargs={'slug': self.slug})
@@ -49,6 +46,13 @@ class LegendType(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __unicode__(self):
+        try:
+            public_id = self.icon.public_id
+        except AttributeError:
+            public_id = ''
+        return "Photo <%s:%s>" % (self.title, public_id)
 
 
 class Legend(models.Model):
@@ -61,11 +65,7 @@ class Legend(models.Model):
         max_length=50,
         unique=True
     )
-    icon = models.ImageField(
-        upload_to=legend_upload_to,
-        default='no_image.png',
-        blank=True
-    )
+    icon = CloudinaryField('image')
     slug = models.SlugField(unique=True, blank=True)
 
     role = models.CharField(

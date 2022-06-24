@@ -2,37 +2,26 @@ from .base import *
 
 import django_on_heroku
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 DEBUG = True
 
 
-INSTALLED_APPS += ['debug_toolbar']
-
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
-MEDIA_URL = '/media/'
+INSTALLED_APPS += ['cloudinary']
 
 
 ALLOWED_HOSTS += ['apex-buff-development.herokuapp.com']
 
 
-DEBUG_TOOLBAR_PANELS = [
-    'debug_toolbar.panels.history.HistoryPanel',
-    'debug_toolbar.panels.versions.VersionsPanel',
-    'debug_toolbar.panels.timer.TimerPanel',
-    'debug_toolbar.panels.settings.SettingsPanel',
-    'debug_toolbar.panels.headers.HeadersPanel',
-    'debug_toolbar.panels.request.RequestPanel',
-    'debug_toolbar.panels.sql.SQLPanel',
-    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-    'debug_toolbar.panels.templates.TemplatesPanel',
-    'debug_toolbar.panels.cache.CachePanel',
-    'debug_toolbar.panels.signals.SignalsPanel',
-    'debug_toolbar.panels.logging.LoggingPanel',
-    'debug_toolbar.panels.redirects.RedirectsPanel',
-    'debug_toolbar.panels.profiling.ProfilingPanel',
-]
+cloudinary.config(
+  cloud_name=os.getenv('CLOUDINARY_CLOUD_URL'),
+  api_key=os.getenv('CLOUDINARY_API_KEY'),
+  api_secret=os.getenv('CLOUDINARY_API_SECRET')
+)
+STORAGE_BASE_URL = f'res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_URL")}'
 
 
 django_on_heroku.settings(locals())

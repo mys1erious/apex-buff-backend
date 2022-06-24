@@ -44,7 +44,7 @@ urlpatterns = [
 ]
 
 
-# Only for local dev testing
+# Only for local/heroku dev testing (for now)
 if os.getenv('DJANGO_SETTINGS_MODULE') == 'config.settings.local':
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

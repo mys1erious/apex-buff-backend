@@ -54,7 +54,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -127,10 +126,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'apex_buff', 'static')
 ]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'apex_buff', 'media')
+MEDIA_URL = '/media/'
 
 
 # Default primary key field type
