@@ -22,6 +22,10 @@ DATABASES = {
 INSTALLED_APPS += ['debug_toolbar', 'cloudinary']
 
 
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
+
+
 # Cloudinary
 cloudinary.config(
   cloud_name=get_env_variable('CLOUDINARY_CLOUD_URL'),
