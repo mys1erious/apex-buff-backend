@@ -23,6 +23,17 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 
+# Cloudinary
+DEFAULT_FILE_STORAGE = 'core.storages.CloudinaryStorage'
+
+CLOUDINARY_STORAGE_SETTINGS = {
+    'resource_type': 'image',
+    'use_filename': True,
+    'unique_filename': False,
+    'overwrite': False
+}
+
+
 cloudinary.config(
   cloud_name=os.getenv('CLOUDINARY_CLOUD_URL'),
   api_key=os.getenv('CLOUDINARY_API_KEY'),

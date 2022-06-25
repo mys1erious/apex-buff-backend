@@ -8,6 +8,14 @@ from django.conf import settings
 from cloudinary.models import CloudinaryField
 
 
+def legend_type_upload_to(instance, filename):
+    return f'legends/types/{filename}'
+
+
+def legend_upload_to(instance, filename):
+    return f'legends/{filename}'
+
+
 class LegendType(models.Model):
     class Names(models.TextChoices):
         RECON = 'recon', 'Recon'
@@ -22,26 +30,13 @@ class LegendType(models.Model):
         choices=Names.choices,
     )
 
-    icon = CloudinaryField(
-        resource_type='image',
-        use_filename=True,
-        unique_filename=False,
-        folder='legends/types/',
-        overwrite=False,
-        blank=True,
-        default='no_image'
-    )
-    icon_imgf = models.ImageField(
-        upload_to='legends/types/',
+    icon = models.ImageField(
+        upload_to=legend_type_upload_to,
         default='no_image',
         blank=True
     )
 
     slug = models.SlugField(unique=True, blank=True)
-
-    @property
-    def icon_url(self):
-        return f'{settings.STORAGE_BASE_URL}/{self.icon}'
 
     def get_absolute_url(self):
         return reverse('legend_types', kwargs={'slug': self.slug})
@@ -52,13 +47,6 @@ class LegendType(models.Model):
 
     def __str__(self):
         return self.name
-
-    # def __unicode__(self):
-    #     try:
-    #         public_id = self.icon.public_id
-    #     except AttributeError:
-    #         public_id = ''
-    #     return "Photo <%s:%s>" % (self.title, public_id)
 
 
 class Legend(models.Model):
@@ -71,15 +59,13 @@ class Legend(models.Model):
         max_length=50,
         unique=True
     )
-    icon = CloudinaryField(
-        'image',
-        use_filename=True,
-        unique_filename=False,
-        folder='legends/',
-        overwrite=False,
-        blank=True,
-        default='no_image'
+
+    icon = models.ImageField(
+        upload_to=legend_upload_to,
+        default='no_image',
+        blank=True
     )
+
     slug = models.SlugField(unique=True, blank=True)
 
     role = models.CharField(
@@ -109,10 +95,6 @@ class Legend(models.Model):
         null=True
     )
     lore = models.TextField(blank=True)
-
-    @property
-    def icon_url(self):
-        return f'{settings.STORAGE_BASE_URL}/{self.icon}'
 
     def get_absolute_url(self):
         return reverse('legends', kwargs={'slug': self.slug})

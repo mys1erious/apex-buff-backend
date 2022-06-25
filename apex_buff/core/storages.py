@@ -60,7 +60,6 @@ class CloudinaryStorage(Storage):
 
     def _get_url(self, name):
         cloudinary_resource = cloudinary.CloudinaryResource(name, default_resource_type='image')
-        # url = cloudinary_resource.url.lstrip('http://')
         url = cloudinary_resource.url
         return url
 

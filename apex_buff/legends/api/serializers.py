@@ -8,7 +8,7 @@ from ..models import Legend, LegendType
 class LegendTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegendType
-        fields = ['name', 'icon_url', 'icon_imgf']
+        fields = ['name', 'icon']
 
 
 class LegendSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class LegendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Legend
         fields = [
-            'name', 'icon_url', 'slug', 'role',
+            'name', 'icon', 'slug', 'role',
             'real_name', 'gender', 'age', 'homeworld',
             'lore', 'legend_type', 'abilities'
         ]

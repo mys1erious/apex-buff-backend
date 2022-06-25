@@ -36,15 +36,6 @@ cloudinary.config(
 
 MEDIA_URL = '/media/'
 
-DEFAULT_FILE_STORAGE = 'core.storages.CloudinaryStorage'
-
-CLOUDINARY_STORAGE_SETTINGS = {
-    'resource_type': 'image',
-    'use_filename': True,
-    'unique_filename': False,
-    'overwrite': False
-}
-
 
 # Debug Toolbar
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
