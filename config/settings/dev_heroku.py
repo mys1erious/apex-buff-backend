@@ -18,8 +18,8 @@ ALLOWED_HOSTS += ['apex-buff-development.herokuapp.com']
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
-    "localhost:5000",
-    "127.0.0.1:5000"
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
 ]
 
 
