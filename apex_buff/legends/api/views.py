@@ -5,14 +5,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.permissions import IsAdminOrIsAuthenticatedReadOnly
+from core.permissions import IsAdminOrReadOnly
 from ..models import Legend, LegendType
 from .serializers import LegendSerializer, LegendTypeSerializer, LegendLegendTypeSerializer
 
 
 class LegendListAPIView(APIView):
-    # permission_classes = (IsAdminOrIsAuthenticatedReadOnly,)
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAdminOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
         legends = Legend.objects.all()
@@ -28,8 +27,7 @@ class LegendListAPIView(APIView):
 
 
 class LegendDetailAPIView(APIView):
-    #permission_classes = (IsAdminOrIsAuthenticatedReadOnly, )
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAdminOrReadOnly, )
 
     def get(self, request, slug, format=None):
         legend = get_object_or_404(Legend, slug=slug)
@@ -58,7 +56,7 @@ class LegendDetailAPIView(APIView):
 
 
 class LegendTypeListAPIView(APIView):
-    permission_classes = (IsAdminUser, )
+    permission_classes = (IsAdminOrReadOnly, )
 
     def get(self, request, *args, **kwargs):
 
@@ -75,7 +73,7 @@ class LegendTypeListAPIView(APIView):
 
 
 class LegendTypeDetailAPIView(APIView):
-    permission_classes = (IsAdminUser, )
+    permission_classes = (IsAdminOrReadOnly, )
 
     def get(self, request, slug, format=None):
         legend_type = get_object_or_404(LegendType, slug=slug)
@@ -100,7 +98,7 @@ class LegendTypeDetailAPIView(APIView):
 
 
 class LegendLegendTypeDetailAPIView(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAdminOrReadOnly, )
 
     def get(self, request, slug, *args, **kwargs):
         legend = get_object_or_404(Legend, slug=slug)

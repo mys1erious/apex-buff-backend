@@ -21,6 +21,10 @@ class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.user:
             user = request.user
+            if hasattr(user, 'is_anonymous') and user.is_anonymous:
+                if request.method in SAFE_METHODS:
+                    return True
+                return False
             if request.method in SAFE_METHODS:
                 return True
             elif user.is_admin:
