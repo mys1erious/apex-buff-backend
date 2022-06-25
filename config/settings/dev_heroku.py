@@ -21,7 +21,6 @@ cloudinary.config(
   api_key=os.getenv('CLOUDINARY_API_KEY'),
   api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
-STORAGE_BASE_URL = f'res.cloudinary.com/{os.getenv("CLOUDINARY_CLOUD_URL")}'
 
 
 django_on_heroku.settings(locals())

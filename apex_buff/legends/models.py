@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
 
-import cloudinary.uploader
 from cloudinary.models import CloudinaryField
 
 
@@ -24,11 +23,18 @@ class LegendType(models.Model):
     )
 
     icon = CloudinaryField(
-        'image',
+        resource_type='image',
         use_filename=True,
         unique_filename=False,
         folder='legends/types/',
-        overwrite=False
+        overwrite=False,
+        blank=True,
+        default='no_image'
+    )
+    icon_imgf = models.ImageField(
+        upload_to='legends/types/',
+        default='no_image',
+        blank=True
     )
 
     slug = models.SlugField(unique=True, blank=True)
@@ -47,12 +53,12 @@ class LegendType(models.Model):
     def __str__(self):
         return self.name
 
-    def __unicode__(self):
-        try:
-            public_id = self.icon.public_id
-        except AttributeError:
-            public_id = ''
-        return "Photo <%s:%s>" % (self.title, public_id)
+    # def __unicode__(self):
+    #     try:
+    #         public_id = self.icon.public_id
+    #     except AttributeError:
+    #         public_id = ''
+    #     return "Photo <%s:%s>" % (self.title, public_id)
 
 
 class Legend(models.Model):

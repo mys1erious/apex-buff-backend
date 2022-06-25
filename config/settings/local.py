@@ -1,7 +1,5 @@
 from .base import *
 
-import cloudinary
-import cloudinary.uploader
 import cloudinary.api
 
 
@@ -30,7 +28,18 @@ cloudinary.config(
   api_key=get_env_variable('CLOUDINARY_API_KEY'),
   api_secret=get_env_variable('CLOUDINARY_API_SECRET')
 )
-STORAGE_BASE_URL = f'res.cloudinary.com/{get_env_variable("CLOUDINARY_CLOUD_URL")}'
+
+
+MEDIA_URL = '/media/'
+
+DEFAULT_FILE_STORAGE = 'core.storages.CloudinaryStorage'
+
+CLOUDINARY_STORAGE_SETTINGS = {
+    'resource_type': 'image',
+    'use_filename': True,
+    'unique_filename': False,
+    'overwrite': False
+}
 
 
 # Debug Toolbar
