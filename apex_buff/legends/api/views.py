@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.permissions import IsAdminOrReadOnly
+from abilities.api.serializers import AbilitySerializer
+
 from ..models import Legend, LegendType
 from .serializers import LegendSerializer, LegendTypeSerializer, LegendLegendTypeSerializer
 
@@ -131,6 +133,38 @@ class LegendLegendTypeDetailAPIView(APIView):
         legend.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class LegendAbilityListAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
+    def get(self, request, slug, *args, **kwargs):
+        legend = get_object_or_404(Legend, slug=slug)
+        abilities = legend.abilities.all()
+        serializer = AbilitySerializer(abilities, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, slug, *args, **kwargs):
+        context = {}
+
+        data = request.data
+        legend = get_object_or_404(Legend, slug=slug)
+        data['legend'] = legend
+
+        serializer = AbilitySerializer(data=data, many=False)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LegendAbilityDetailAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
+    ...
+
 
 # With generics
 # class LegendListCreateAPIView(ListCreateAPIView):
