@@ -3,6 +3,7 @@ import os
 from rest_framework import serializers
 
 from abilities.api.serializers import AbilitySerializer
+from abilities.models import Ability
 from ..models import Legend, LegendType
 
 

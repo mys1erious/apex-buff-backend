@@ -149,8 +149,7 @@ class LegendAbilityListAPIView(APIView):
         context = {}
 
         data = request.data
-        legend = get_object_or_404(Legend, slug=slug)
-        data['legend'] = legend
+        data['legend'] = slug
 
         serializer = AbilitySerializer(data=data, many=False)
 
@@ -164,18 +163,3 @@ class LegendAbilityDetailAPIView(APIView):
     permission_classes = (IsAdminOrReadOnly,)
 
     ...
-
-
-# With generics
-# class LegendListCreateAPIView(ListCreateAPIView):
-#     queryset = Legend.objects.all()
-#     permission_classes = (AllowAny, )
-#     serializer_class = LegendSerializer
-#     lookup_field = 'slug'
-#
-#
-# class LegendRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-#     queryset = Legend.objects.all()
-#     permission_classes = (AllowAny, )
-#     serializer_class = LegendSerializer
-#     lookup_field = 'slug'

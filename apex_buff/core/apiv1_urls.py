@@ -30,6 +30,7 @@ urlpatterns = [
         view=legend_views.LegendAbilityListAPIView.as_view(),
         name='legends_abilities'
     ),
+    # {% url 'api:legends_ability' legend.slug ability.slug%}
 
     # LegendTypes
     # {% url 'api:legend_types' %}

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from legends.models import Legend
 from ..models import Ability
 
 
@@ -15,5 +16,6 @@ class AbilitySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         legend_slug = validated_data.pop('legend')
+        legend = Legend.objects.get(slug=legend_slug)
 
-        return Ability.objects.create(**validated_data)
+        return Ability.objects.create(**validated_data, legend=legend)

@@ -16,7 +16,10 @@ class Ability(models.Model):
         ULTIMATE = 'ultimate', 'Ultimate'
         PERK = 'perk', 'Perk'
 
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(
+        unique=True,
+        blank=True
+    )
     legend = models.ForeignKey(
         to=Legend,
         on_delete=models.CASCADE,
@@ -47,7 +50,7 @@ class Ability(models.Model):
         return reverse('abilities', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        self.slug = f'{self.legend.slug}/{slugify(self.name)}'
+        self.slug = f'{self.legend.slug}_{slugify(self.name)}'
         super().save(*args, **kwargs)
 
     def __str__(self):
