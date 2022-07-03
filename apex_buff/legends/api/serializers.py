@@ -2,6 +2,8 @@ import os
 
 from rest_framework import serializers
 
+from abilities.api.serializers import AbilitySerializer
+from abilities.models import Ability
 from ..models import Legend, LegendType
 
 
@@ -12,7 +14,7 @@ class LegendTypeSerializer(serializers.ModelSerializer):
 
 
 class LegendSerializer(serializers.ModelSerializer):
-    abilities = serializers.CharField(default='', read_only=True)  # For now
+    abilities = AbilitySerializer(many=True, read_only=True)
     legend_type = LegendTypeSerializer(many=False, read_only=True)
 
     class Meta:
