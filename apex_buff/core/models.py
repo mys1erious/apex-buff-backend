@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
+from cloudinary.models import CloudinaryField as BaseCloudinaryField
 
-<<<<<<< HEAD
 
 class CloudinaryIconUrlModel(models.Model):
     class Meta:
@@ -10,8 +10,6 @@ class CloudinaryIconUrlModel(models.Model):
     @property
     def icon_url(self):
         return f'{settings.CLOUDINARY_ROOT_URL}/{self.icon}'
-=======
-from cloudinary.models import CloudinaryField as BaseCloudinaryField
 
 
 class CloudinaryField(BaseCloudinaryField):
@@ -21,4 +19,3 @@ class CloudinaryField(BaseCloudinaryField):
     @property
     def url(self):
         return f'{settings.CLOUDINARY_ROOT_URL}/{self}'
->>>>>>> 5a4563d2caf7c4a9b78f2d9b9cb775ca9ad31f9f

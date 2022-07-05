@@ -4,14 +4,9 @@ from cloudinary.models import CloudinaryField
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-<<<<<<< HEAD
-=======
 from django.conf import settings
 
 from core.models import CloudinaryField
->>>>>>> 5a4563d2caf7c4a9b78f2d9b9cb775ca9ad31f9f
-
-
 from core.models import CloudinaryIconUrlModel
 
 
