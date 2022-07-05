@@ -27,6 +27,15 @@ ALLOWED_HOSTS += ['127.0.0.1', 'localhost']
 
 
 # Cloudinary
+DEFAULT_FILE_STORAGE = 'core.storages.CloudinaryStorage'
+
+CLOUDINARY_STORAGE_SETTINGS = {
+    'resource_type': 'image',
+    'use_filename': True,
+    'unique_filename': False,
+    'overwrite': False
+}
+
 cloudinary.config(
   cloud_name=get_env_variable('CLOUDINARY_CLOUD_URL'),
   api_key=get_env_variable('CLOUDINARY_API_KEY'),
@@ -34,7 +43,7 @@ cloudinary.config(
 )
 
 
-MEDIA_URL = '/media/'
+#MEDIA_URL = '/media/'
 
 
 # Debug Toolbar

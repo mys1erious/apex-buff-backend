@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from legends.models import Legend
+from cloudinary import CloudinaryImage
 
 
 def upload_to(instance, filename):
