@@ -3,14 +3,13 @@ import os
 from rest_framework import serializers
 
 from abilities.api.serializers import AbilitySerializer
-from abilities.models import Ability
 from ..models import Legend, LegendType
 
 
 class LegendTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegendType
-        fields = ['name', 'icon']
+        fields = ['name', 'icon_url']
 
 
 class LegendSerializer(serializers.ModelSerializer):
@@ -20,10 +19,14 @@ class LegendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Legend
         fields = [
-            'name', 'icon', 'slug', 'role',
+            'name', 'icon_url', 'icon', 'slug', 'role',
             'real_name', 'gender', 'age', 'homeworld',
             'lore', 'legend_type', 'abilities'
         ]
+        extra_kwargs = {
+            'icon': {'write_only': True},
+            'icon_url': {'read_only': True}
+        }
 
 
 class LegendLegendTypeSerializer(serializers.Serializer):

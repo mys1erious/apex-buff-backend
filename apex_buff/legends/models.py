@@ -1,14 +1,15 @@
 import os
+from cloudinary.models import CloudinaryField
 
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.conf import settings
-
-from cloudinary.models import CloudinaryField
 
 
-class LegendType(models.Model):
+from core.models import CloudinaryIconUrlModel
+
+
+class LegendType(CloudinaryIconUrlModel):
     class Names(models.TextChoices):
         RECON = 'recon', 'Recon'
         DEFENSIVE = 'defensive', 'Defensive'
@@ -42,7 +43,7 @@ class LegendType(models.Model):
         return self.name
 
 
-class Legend(models.Model):
+class Legend(CloudinaryIconUrlModel):
     class Genders(models.TextChoices):
         MALE = 'm', 'Male'
         FEMALE = 'f', 'Female'
@@ -88,6 +89,11 @@ class Legend(models.Model):
         null=True
     )
     lore = models.TextField(blank=True)
+
+    @property
+    def icon_url(self):
+        url = self.icon.build_url(raw_transformation='e_bgremoval')
+        return url
 
     def get_absolute_url(self):
         return reverse('legends', kwargs={'slug': self.slug})

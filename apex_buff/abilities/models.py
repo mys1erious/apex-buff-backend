@@ -1,17 +1,18 @@
+from cloudinary.models import CloudinaryField
+
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
+from core.models import CloudinaryIconUrlModel
 from legends.models import Legend
-
-from cloudinary.models import CloudinaryField
 
 
 def upload_to(instance, filename):
     return f'abilities/{filename}'
 
 
-class Ability(models.Model):
+class Ability(CloudinaryIconUrlModel):
     class AbilityTypes(models.TextChoices):
         TACTICAL = 'tactical', 'Tactical'
         PASSIVE = 'passive', 'Passive'
@@ -29,8 +30,7 @@ class Ability(models.Model):
     )
     name = models.CharField(
         max_length=50,
-        default='no_image',
-        blank=True,
+        blank=True
     )
     description = models.TextField(blank=True)
     info = models.TextField(blank=True)
@@ -51,6 +51,11 @@ class Ability(models.Model):
         null=True,
         help_text='Ability cooldown in seconds'
     )
+
+    @property
+    def icon_url(self):
+        url = self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+        return url
 
     def get_absolute_url(self):
         return reverse('abilities', kwargs={'slug': self.slug})
