@@ -33,9 +33,6 @@ cloudinary.config(
   api_secret=get_env_variable('CLOUDINARY_API_SECRET')
 )
 
-# MEDIA_URL = '/media/'
-
-
 # Debug Toolbar
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
 
-from cloudinary.models import CloudinaryField
+from core.models import CloudinaryField
 
 
 class LegendType(models.Model):
