@@ -13,6 +13,7 @@ from django.core.files.storage import Storage
 from django.core.files.uploadedfile import UploadedFile
 
 
+# Finish later
 class CloudinaryStorage(Storage):
     def __init__(self):
         self.options = settings.CLOUDINARY_STORAGE_SETTINGS
@@ -61,23 +62,24 @@ class CloudinaryStorage(Storage):
         return self._get_url(name)
 
     def _get_url(self, name):
-        # For now hardcoded
-        cloudinary_resource = cloudinary.CloudinaryImage(name).image(
-            transformation=[
-                {"raw_transformation": "e_bgremoval"}
-            ]
-        )
+        # Rework whole method, possible with creation of custom Field that would work for local/prod
 
-        # end = text.find(end_pattern) + len(end_pattern)
-        # return text[:end]
-
-        start_pattern = 'http'
-        end_pattern = '.png'
-
-        start = cloudinary_resource.find(start_pattern)
-        end = cloudinary_resource.find(end_pattern) + len(end_pattern)
-
-        url = cloudinary_resource[start:end]
+        # cloudinary_resource = cloudinary.CloudinaryImage(name).image(
+        #     transformation=[
+        #         {"raw_transformation": "e_bgremoval"}
+        #     ]
+        # )
+        #
+        # # end = text.find(end_pattern) + len(end_pattern)
+        # # return text[:end]
+        #
+        # start_pattern = 'http'
+        # end_pattern = '.png'
+        #
+        # start = cloudinary_resource.find(start_pattern)
+        # end = cloudinary_resource.find(end_pattern) + len(end_pattern)
+        #
+        # url = cloudinary_resource[start:end]
         return url
 
     def _normalize_path(self, path):

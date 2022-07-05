@@ -4,14 +4,14 @@ from django.db.models.signals import post_delete, pre_save
 from .models import LegendType
 
 
-@receiver(post_delete, sender=LegendType)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from storage
-    when corresponding `LegendType` object is deleted.
-    """
-    if instance.icon_imgf:
-        instance.icon_imgf.delete()
+# @receiver(post_delete, sender=LegendType)
+# def auto_delete_file_on_delete(sender, instance, **kwargs):
+#     """
+#     Deletes file from storage
+#     when corresponding `LegendType` object is deleted.
+#     """
+#     if instance.icon_imgf:
+#         instance.icon_imgf.delete()
 
 
 # @receiver(pre_save, sender=LegendType)

@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from legends.models import Legend
-from cloudinary import CloudinaryImage
+
+from cloudinary.models import CloudinaryField
 
 
 def upload_to(instance, filename):
@@ -33,9 +34,13 @@ class Ability(models.Model):
     )
     description = models.TextField(blank=True)
     info = models.TextField(blank=True)
-    icon = models.ImageField(
-        upload_to=upload_to,
-        blank=True
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='abilities/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
     )
     ability_type = models.CharField(
         max_length=10,
