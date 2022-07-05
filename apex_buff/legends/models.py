@@ -8,14 +8,6 @@ from django.conf import settings
 from cloudinary.models import CloudinaryField
 
 
-def legend_type_upload_to(instance, filename):
-    return f'legends/types/{filename}'
-
-
-def legend_upload_to(instance, filename):
-    return f'legends/{filename}'
-
-
 class LegendType(models.Model):
     class Names(models.TextChoices):
         RECON = 'recon', 'Recon'
@@ -29,13 +21,14 @@ class LegendType(models.Model):
         blank=True,
         choices=Names.choices,
     )
-
-    icon = models.ImageField(
-        upload_to=legend_type_upload_to,
-        default='no_image',
-        blank=True
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='legends/types/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
     )
-
     slug = models.SlugField(unique=True, blank=True)
 
     def get_absolute_url(self):
@@ -59,15 +52,15 @@ class Legend(models.Model):
         max_length=50,
         unique=True
     )
-
-    icon = models.ImageField(
-        upload_to=legend_upload_to,
-        default='no_image',
-        blank=True
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='legends/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
     )
-
     slug = models.SlugField(unique=True, blank=True)
-
     role = models.CharField(
         max_length=100,
         blank=True
