@@ -1,4 +1,6 @@
 import os
+import re
+
 import requests
 
 import cloudinary
@@ -59,8 +61,23 @@ class CloudinaryStorage(Storage):
         return self._get_url(name)
 
     def _get_url(self, name):
-        cloudinary_resource = cloudinary.CloudinaryResource(name, default_resource_type='image')
-        url = cloudinary_resource.url
+        # For now hardcoded
+        cloudinary_resource = cloudinary.CloudinaryImage(name).image(
+            transformation=[
+                {"raw_transformation": "e_bgremoval,e_bgremoval"}
+            ]
+        )
+
+        # end = text.find(end_pattern) + len(end_pattern)
+        # return text[:end]
+
+        start_pattern = 'http'
+        end_pattern = '.png'
+
+        start = cloudinary_resource.find(start_pattern)
+        end = cloudinary_resource.find(end_pattern) + len(end_pattern)
+
+        url = cloudinary_resource[start:end]
         return url
 
     def _normalize_path(self, path):
