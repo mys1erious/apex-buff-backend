@@ -64,7 +64,7 @@ class CloudinaryStorage(Storage):
         # For now hardcoded
         cloudinary_resource = cloudinary.CloudinaryImage(name).image(
             transformation=[
-                {"raw_transformation": "e_bgremoval,e_bgremoval"}
+                {"raw_transformation": "e_bgremoval"}
             ]
         )
 
