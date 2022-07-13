@@ -73,6 +73,8 @@ class FireModeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class WeaponListAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
     def get(self, request, *args, **kwargs):
         weapons = Weapon.objects.all()
         serializer = WeaponSerializer(weapons, many=True)
@@ -87,6 +89,8 @@ class WeaponListAPIView(APIView):
 
 
 class WeaponDetailAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
     def get(self, request, slug, format=None):
         weapon = get_object_or_404(Weapon, slug=slug)
         serializer = WeaponSerializer(weapon, many=False)
