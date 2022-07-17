@@ -7,14 +7,25 @@ from ..models import Legend, LegendType
 
 
 class LegendTypeSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='get_name_display', read_only=True)
+
     class Meta:
         model = LegendType
-        fields = ['name', 'icon_url']
+        fields = ['name', 'slug', 'icon', 'icon_url']
+        extra_kwargs = {
+            'icon': {'write_only': True},
+            'icon_url': {'read_only': True}
+        }
+
+
+class LegendLegendTypeSerializer(serializers.Serializer):
+    slug = serializers.SlugField()
 
 
 class LegendSerializer(serializers.ModelSerializer):
     abilities = AbilitySerializer(many=True, read_only=True)
     legend_type = LegendTypeSerializer(many=False, read_only=True)
+    gender = serializers.CharField(source='get_gender_display', read_only=True)
 
     class Meta:
         model = Legend
@@ -27,7 +38,3 @@ class LegendSerializer(serializers.ModelSerializer):
             'icon': {'write_only': True},
             'icon_url': {'read_only': True}
         }
-
-
-class LegendLegendTypeSerializer(serializers.Serializer):
-    legend_type = serializers.CharField()

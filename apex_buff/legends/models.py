@@ -1,12 +1,13 @@
-import os
-
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.conf import settings
 
-from core.models import CloudinaryField
+from cloudinary.models import CloudinaryField
+
+from abilities.models import Ability
 from core.models import CloudinaryIconUrlModel
+
+from .exceptions import TooManyAbilities, AbilityHasOtherLegend
 
 
 class LegendType(CloudinaryIconUrlModel):
@@ -44,6 +45,12 @@ class LegendType(CloudinaryIconUrlModel):
 
 
 class Legend(CloudinaryIconUrlModel):
+    # Not sure how to implement in a better way (to have the same result as Model.DoesNotExist for example)
+    TooManyAbilities = TooManyAbilities
+    AbilityHasOtherLegend = AbilityHasOtherLegend
+
+    MAX_ABILITIES = 4
+
     class Genders(models.TextChoices):
         MALE = 'm', 'Male'
         FEMALE = 'f', 'Female'
@@ -86,9 +93,22 @@ class Legend(CloudinaryIconUrlModel):
         to=LegendType,
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        default=None
     )
     lore = models.TextField(blank=True)
+
+    def update_legend_type(self, legend_type):
+        self.legend_type = legend_type
+        self.save()
+
+    def delete_legend_type(self):
+        self.legend_type = None
+        self.save()
+
+    @staticmethod
+    def all_legends():
+        return Legend.objects.select_related('legend_type').prefetch_related('abilities').all()
 
     @property
     def icon_url(self):
