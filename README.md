@@ -6,5 +6,5 @@
 ### Link to API
 - Soon
 
-### Link to Frontend made by @yurii-bel
+### Link to Frontend made by [yurii-bel](https://github.com/yurii-bel)
 - Soon
