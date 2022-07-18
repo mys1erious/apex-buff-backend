@@ -25,7 +25,6 @@ class LegendLegendTypeSerializer(serializers.Serializer):
 class LegendSerializer(serializers.ModelSerializer):
     abilities = AbilitySerializer(many=True, read_only=True)
     legend_type = LegendTypeSerializer(many=False, read_only=True)
-    gender = serializers.CharField(source='get_gender_display', read_only=True)
 
     class Meta:
         model = Legend
@@ -38,3 +37,8 @@ class LegendSerializer(serializers.ModelSerializer):
             'icon': {'write_only': True},
             'icon_url': {'read_only': True}
         }
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['gender'] = instance.get_gender_display()
+        return rep
