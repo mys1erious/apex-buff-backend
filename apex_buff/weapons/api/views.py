@@ -9,26 +9,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.permissions import IsAdminOrReadOnly
+from core.utils.response_messages import Context, Messages
 
 from ..models import (
     Weapon,
     Attachment,
-    WeaponAttachment,
-    Ammo,
-    WeaponAmmo,
-    FireMode,
-    # WeaponFiremode
-    # WeaponDamage,
+#     Ammo,
+#     WeaponAmmo,
+#     FireMode,
+#     # WeaponFiremode
+#     # WeaponDamage,
 )
 from .serializers import (
     WeaponSerializer,
     AttachmentSerializer,
-    WeaponAttachmentSerializer,
-    AmmoSerializer,
-    WeaponAmmoSerializer,
-    FireModeSerializer,
-    # WeaponFiremodeSerializer
-    # WeaponDamageSerializer,
+#     AmmoSerializer,
+#     WeaponAmmoSerializer,
+#     FireModeSerializer,
+#     # WeaponFiremodeSerializer
+#     # WeaponDamageSerializer,
 )
 
 
@@ -46,32 +45,32 @@ class AttachmentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     lookup_field = 'slug'
 
 
-class AmmoListCreateAPIView(ListCreateAPIView):
-    queryset = Ammo.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
-    serializer_class = AmmoSerializer
-    lookup_field = 'slug'
-
-
-class AmmoRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Ammo.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
-    serializer_class = AmmoSerializer
-    lookup_field = 'slug'
-
-
-class FireModeListCreateAPIView(ListCreateAPIView):
-    queryset = FireMode.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
-    serializer_class = FireModeSerializer
-    lookup_field = 'slug'
-
-
-class FireModeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = FireMode.objects.all()
-    permission_classes = (IsAdminOrReadOnly,)
-    serializer_class = FireModeSerializer
-    lookup_field = 'slug'
+# class AmmoListCreateAPIView(ListCreateAPIView):
+#     queryset = Ammo.objects.all()
+#     permission_classes = (IsAdminOrReadOnly,)
+#     serializer_class = AmmoSerializer
+#     lookup_field = 'slug'
+#
+#
+# class AmmoRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = Ammo.objects.all()
+#     permission_classes = (IsAdminOrReadOnly,)
+#     serializer_class = AmmoSerializer
+#     lookup_field = 'slug'
+#
+#
+# class FireModeListCreateAPIView(ListCreateAPIView):
+#     queryset = FireMode.objects.all()
+#     permission_classes = (IsAdminOrReadOnly,)
+#     serializer_class = FireModeSerializer
+#     lookup_field = 'slug'
+#
+#
+# class FireModeRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = FireMode.objects.all()
+#     permission_classes = (IsAdminOrReadOnly,)
+#     serializer_class = FireModeSerializer
+#     lookup_field = 'slug'
 
 
 class WeaponListAPIView(APIView):
@@ -99,26 +98,25 @@ class WeaponDetailAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class WeaponAttachmentAPIView(APIView):
+class WeaponAttachmentListAPIView(APIView):
     permission_classes = (IsAdminOrReadOnly,)
 
     def get(self, request, slug, format=None):
         weapon = get_object_or_404(Weapon, slug=slug)
-        print(weapon.attachments)
         serializer = AttachmentSerializer(weapon.attachments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, slug, format=None):
-        data = request.data
-        data._mutable = True
-        data['weapon'] = slug
-        data._mutable = False
+        context = Context()
 
-        serializer = WeaponAttachmentSerializer(data=data, many=False)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        weapon = get_object_or_404(Weapon, slug=slug)
+        attachment = Attachment.objects.get(slug=request.data['attachment_slug'])
+
+        weapon.add_attachment(attachment)
+
+        context['message'] = Messages.SUCCESS['POST'](obj='Legend', name=weapon.name)
+        context['data'] = WeaponSerializer(weapon).data
+        return Response(context, status=status.HTTP_200_OK)
 
 
 # class WeaponAmmoAPIView(APIView):
@@ -149,8 +147,8 @@ class WeaponAttachmentAPIView(APIView):
 #         weapon.ammo.delete()
 #         weapon.save()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
+#
+#
 # class WeaponDamageAPIView(APIView):
 #     def post(self, request, slug, format=None):
 #         weapon = get_object_or_404(Weapon, slug=slug)

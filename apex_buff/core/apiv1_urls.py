@@ -80,7 +80,7 @@ urlpatterns = [
     # {% url 'api:weapon_attachments' weapon.slug %}
     path(
         route='weapons/<slug:slug>/attachments/',
-        view=weapon_views.WeaponAttachmentAPIView.as_view(),
+        view=weapon_views.WeaponAttachmentListAPIView.as_view(),
         name='weapon_attachments'
     ),
     # {% url 'api:weapon_ammo' weapon.slug %}
@@ -109,7 +109,7 @@ urlpatterns = [
     # ),
 
 
-    # # -- Attachments --
+    # -- Attachments --
     # {% url 'api:attachments' %}
     path(
         route='attachments/',
@@ -124,32 +124,32 @@ urlpatterns = [
     ),
 
 
-    # -- Ammo --
-    # {% url 'api:ammo' %}
-    path(
-        route='ammo/',
-        view=weapon_views.AmmoListCreateAPIView.as_view(),
-        name='ammo'
-    ),
-    # {% url 'api:ammo' ammo.slug %}
-    path(
-        route='ammo/<slug:slug>/',
-        view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
-        name='ammo'
-    ),
+    # # -- Ammo --
+    # # {% url 'api:ammo' %}
+    # path(
+    #     route='ammo/',
+    #     view=weapon_views.AmmoListCreateAPIView.as_view(),
+    #     name='ammo'
+    # ),
+    # # {% url 'api:ammo' ammo.slug %}
+    # path(
+    #     route='ammo/<slug:slug>/',
+    #     view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
+    #     name='ammo'
+    # ),
 
 
-    # -- Fire_modes --
-    # {% url 'api:fire_modes' %}
-    path(
-        route='fire_modes/',
-        view=weapon_views.FireModeListCreateAPIView.as_view(),
-        name='fire_modes'
-    ),
-    # {% url 'api:fire_modes' fire_mode.slug %}
-    path(
-        route='fire_modes/<slug:slug>/',
-        view=weapon_views.FireModeRetrieveUpdateDestroyAPIView.as_view(),
-        name='fire_modes'
-    ),
+    # # -- FireModes --
+    # # {% url 'api:fire_modes' %}
+    # path(
+    #     route='fire_modes/',
+    #     view=weapon_views.FireModeListCreateAPIView.as_view(),
+    #     name='fire_modes'
+    # ),
+    # # {% url 'api:fire_modes' fire_mode.slug %}
+    # path(
+    #     route='fire_modes/<slug:slug>/',
+    #     view=weapon_views.FireModeRetrieveUpdateDestroyAPIView.as_view(),
+    #     name='fire_modes'
+    # ),
 ]
