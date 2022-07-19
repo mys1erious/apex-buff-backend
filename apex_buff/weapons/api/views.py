@@ -15,6 +15,7 @@ from ..models import (
     Weapon,
     Attachment,
     Ammo,
+    Modificator
 #     WeaponAmmo,
 #     FireMode,
 #     # WeaponFiremode
@@ -24,6 +25,7 @@ from .serializers import (
     WeaponSerializer,
     AttachmentSerializer,
     AmmoSerializer,
+    ModificatorSerializer
 #     FireModeSerializer,
 #     # WeaponFiremodeSerializer
 #     # WeaponDamageSerializer,
@@ -70,6 +72,20 @@ class AmmoRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 #     permission_classes = (IsAdminOrReadOnly,)
 #     serializer_class = FireModeSerializer
 #     lookup_field = 'slug'
+
+
+class ModificatorListCreateAPIView(ListCreateAPIView):
+    queryset = Modificator.objects.all()
+    permission_classes = (IsAdminOrReadOnly,)
+    serializer_class = ModificatorSerializer
+    lookup_field = 'slug'
+
+
+class ModificatorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Modificator.objects.all()
+    permission_classes = (IsAdminOrReadOnly,)
+    serializer_class = ModificatorSerializer
+    lookup_field = 'slug'
 
 
 class WeaponListAPIView(APIView):

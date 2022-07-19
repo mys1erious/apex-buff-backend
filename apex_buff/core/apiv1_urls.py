@@ -152,4 +152,19 @@ urlpatterns = [
     #     view=weapon_views.FireModeRetrieveUpdateDestroyAPIView.as_view(),
     #     name='fire_modes'
     # ),
+
+
+    # -- Modificators --
+    # {% url 'api:modificators' %}
+    path(
+        route='modificators/',
+        view=weapon_views.ModificatorListCreateAPIView.as_view(),
+        name='modificators'
+    ),
+    # {% url 'api:modificators' modificator.slug %}
+    path(
+        route='modificators/<slug:slug>/',
+        view=weapon_views.ModificatorRetrieveUpdateDestroyAPIView.as_view(),
+        name='modificators'
+    )
 ]

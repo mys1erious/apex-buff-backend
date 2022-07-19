@@ -4,11 +4,10 @@ from ..models import (
     Weapon,
     Attachment,
     Ammo,
-#     WeaponAmmo,
-#     FireMode,
-#     # WeaponFiremode,
-#     # WeaponDamage,
-#     # DamageStats
+    Modificator,
+    # FireMode,
+    # WeaponDamage,
+    # DamageStats
 )
 
 
@@ -40,8 +39,18 @@ class AmmoSerializer(serializers.ModelSerializer):
 #             'icon': {'write_only': True},
 #             'icon_url': {'read_only': True}
 #         }
-#
-#
+
+
+class ModificatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Modificator
+        fields = ['slug', 'name', 'icon_url', 'icon']
+        extra_kwargs = {
+            'icon': {'write_only': True},
+            'icon_url': {'read_only': True}
+        }
+
+
 class WeaponSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
     ammo = AmmoSerializer(many=True, read_only=True)
