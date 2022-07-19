@@ -84,11 +84,11 @@ urlpatterns = [
         name='weapon_attachments'
     ),
     # {% url 'api:weapon_ammo' weapon.slug %}
-    # path(
-    #     route='weapons/<slug:slug>/ammo/',
-    #     view=weapon_views.WeaponAmmoAPIView.as_view(),
-    #     name='weapon_ammo'
-    # ),
+    path(
+        route='weapons/<slug:slug>/ammo/',
+        view=weapon_views.WeaponAmmoListAPIView.as_view(),
+        name='weapon_ammo'
+    ),
     # # {% 'api:weapon_fire_modes' weapon.slug %}
     # path(
     #     route='weapons/<slug:slug>/fire_modes/',
@@ -124,19 +124,19 @@ urlpatterns = [
     ),
 
 
-    # # -- Ammo --
-    # # {% url 'api:ammo' %}
-    # path(
-    #     route='ammo/',
-    #     view=weapon_views.AmmoListCreateAPIView.as_view(),
-    #     name='ammo'
-    # ),
-    # # {% url 'api:ammo' ammo.slug %}
-    # path(
-    #     route='ammo/<slug:slug>/',
-    #     view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
-    #     name='ammo'
-    # ),
+    # -- Ammo --
+    # {% url 'api:ammo' %}
+    path(
+        route='ammo/',
+        view=weapon_views.AmmoListCreateAPIView.as_view(),
+        name='ammo'
+    ),
+    # {% url 'api:ammo' ammo.slug %}
+    path(
+        route='ammo/<slug:slug>/',
+        view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
+        name='ammo'
+    ),
 
 
     # # -- FireModes --

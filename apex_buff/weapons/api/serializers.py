@@ -3,8 +3,7 @@ from rest_framework import serializers
 from ..models import (
     Weapon,
     Attachment,
-    WeaponAttachment,
-#     Ammo,
+    Ammo,
 #     WeaponAmmo,
 #     FireMode,
 #     # WeaponFiremode,
@@ -23,20 +22,16 @@ class AttachmentSerializer(serializers.ModelSerializer):
         }
 
 
-# class AmmoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Ammo
-#         fields = ['slug', 'name', 'icon_url', 'icon']
-#         extra_kwargs = {
-#             'icon': {'write_only': True},
-#             'icon_url': {'read_only': True}
-#         }
-#
-#
-# class WeaponAmmoSerializer(serializers.Serializer):
-#     ammo = serializers.CharField()
-#
-#
+class AmmoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ammo
+        fields = ['slug', 'name', 'icon_url', 'icon']
+        extra_kwargs = {
+            'icon': {'write_only': True},
+            'icon_url': {'read_only': True}
+        }
+
+
 # class FireModeSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = FireMode
@@ -49,8 +44,8 @@ class AttachmentSerializer(serializers.ModelSerializer):
 #
 class WeaponSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
+    ammo = AmmoSerializer(many=True, read_only=True)
     # damage = WeaponDamageSerializer(many=False, read_only=True)
-    # ammo = AmmoSerializer(many=False, read_only=True)
     # firemods = WeaponFiremodeSerializer(many=True, read_only=True, source='weapon_firemods')
 
     class Meta:
@@ -62,14 +57,14 @@ class WeaponSerializer(serializers.ModelSerializer):
         # ]
         fields = [
             'slug', 'name', 'icon_url', 'icon', 'weapon_type',
-            'attachments'
+            'attachments', 'ammo'
         ]
         extra_kwargs = {
             'icon': {'write_only': True},
             'icon_url': {'read_only': True}
         }
-#
-#
+
+
 # # class DamageStatsSerializer(serializers.ModelSerializer):
 # #
 # #     class Meta:

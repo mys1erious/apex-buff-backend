@@ -3,8 +3,8 @@ from .models import (
      Weapon,
     Attachment,
     WeaponAttachment,
-#     Ammo,
-#     WeaponAmmo,
+    Ammo,
+    WeaponAmmo,
 #     FireMode,
 #     # WeaponFiremode,
 #     Special,
@@ -17,8 +17,8 @@ admin.site.register(Weapon)
 
 admin.site.register(Attachment)
 admin.site.register(WeaponAttachment)
-#
-# admin.site.register(Ammo)
+
+admin.site.register(Ammo)
 # admin.site.register(WeaponAmmo)
 #
 # admin.site.register(FireMode)

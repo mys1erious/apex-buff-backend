@@ -38,11 +38,6 @@ class Weapon(CloudinaryIconUrlModel):
     )
 #     mag_size = models.IntegerField(blank=True, null=True, default=None)
 #     projectile_speed = models.IntegerField()
-#     ammo = models.ForeignKey(
-#         to=Ammo,
-#         on_delete=models.SET_NULL,
-#         null=True
-#     )
 #
 #     @property
 #     def firemods(self):
@@ -60,20 +55,31 @@ class Weapon(CloudinaryIconUrlModel):
 #         weapon_firemodes = WeaponFiremode.objects.filter(weapon=self)
 #         return weapon_firemodes
 
+    # @staticmethod
+    # def all_weapons():
+    #     return Weapon.objects.select_related('legend_type').prefetch_related('abilities').all()
+
     @property
     def attachments(self):
-        # Possible rework to get attachments on the first query
-        attachment_slugs = WeaponAttachment.objects.filter(
-            weapon=self
-        ).values_list('attachment__slug', flat=True)
-
-        attachment_slugs_list = list(attachment_slugs)
-        attachments = Attachment.objects.in_bulk(id_list=attachment_slugs_list, field_name='slug')
+        # Rework for faster performance
+        attachment_ids = WeaponAttachment.objects.filter(weapon=self).values_list('attachment', flat=True)
+        attachments = Attachment.objects.in_bulk(id_list=list(attachment_ids))
         return attachments.values()
 
     def add_attachment(self, attachment):
         new_attachment = WeaponAttachment(weapon=self, attachment=attachment)
         new_attachment.save()
+
+    @property
+    def ammo(self):
+        # Rework for faster performance
+        ammo_ids = WeaponAmmo.objects.filter(weapon=self).values_list('ammo', flat=True)
+        ammo = Ammo.objects.in_bulk(id_list=list(ammo_ids))
+        return ammo.values()
+
+    def add_ammo(self, ammo):
+        new_ammo = WeaponAmmo(weapon=self, ammo=ammo)
+        new_ammo.save()
 
     @property
     def icon_url(self):
@@ -135,57 +141,57 @@ class WeaponAttachment(models.Model):
         return f'{self.weapon.name} - {self.attachment.name}'
 
 
-# class Ammo(CloudinaryIconUrlModel):
-#     class Names(models.TextChoices):
-#         ARROWS = 'Arrows', 'Arrows'
-#         ENERGY = 'Energy', 'Energy'
-#         HEAVY = 'Heavy', 'Heavy'
-#         LIGHT = 'Light', 'Light'
-#         SHOTGUN = 'Shotgun', 'Shotgun'
-#         SNIPER = 'Sniper', 'Sniper'
-#         MYTHIC = 'Mythic', 'Mythic'
-#
-#     slug = models.SlugField(unique=True, blank=True)
-#     name = models.CharField(
-#         max_length=20,
-#         unique=True,
-#         choices=Names.choices
-#     )
-#     icon = CloudinaryField(
-#         resource_type='image',
-#         folder='weapons/ammo/',
-#         use_filename=True,
-#         unique_filename=False,
-#         blank=True,
-#         default='no_image'
-#     )
-#
-#     @property
-#     def icon_url(self):
-#         return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
-#
-#     def get_absolute_url(self):
-#         return reverse('ammo', kwargs={'slug': self.slug})
-#
-#     def save(self, *args, **kwargs):
-#         self.slug = slugify(self.name)
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class WeaponAmmo(models.Model):
-#     weapon = models.ForeignKey(
-#         to=Weapon,
-#         on_delete=models.CASCADE,
-#     )
-#     ammo = models.ForeignKey(
-#         to=Ammo,
-#         on_delete=models.CASCADE
-#     )
-#
-#
+class Ammo(CloudinaryIconUrlModel):
+    class Names(models.TextChoices):
+        ARROWS = 'Arrows', 'Arrows'
+        ENERGY = 'Energy', 'Energy'
+        HEAVY = 'Heavy', 'Heavy'
+        LIGHT = 'Light', 'Light'
+        SHOTGUN = 'Shotgun', 'Shotgun'
+        SNIPER = 'Sniper', 'Sniper'
+        MYTHIC = 'Mythic', 'Mythic'
+
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=20,
+        unique=True,
+        choices=Names.choices
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/ammo/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+
+    @property
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('ammo', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class WeaponAmmo(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+    )
+    ammo = models.ForeignKey(
+        to=Ammo,
+        on_delete=models.CASCADE
+    )
+
+
 # class FireMode(CloudinaryIconUrlModel):
 #     slug = models.SlugField(unique=True, blank=True)
 #     name = models.CharField(
