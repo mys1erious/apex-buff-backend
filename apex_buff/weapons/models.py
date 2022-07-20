@@ -9,6 +9,41 @@ from core.models import (
 from cloudinary.models import CloudinaryField
 
 
+class Modificator(CloudinaryIconUrlModel):
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=127,
+        unique=True
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/modificators/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('modificators', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class RangeStat(models.Model):
+    name = models.CharField(max_length=127)
+    min = models.FloatField(blank=True, null=True)
+    max = models.FloatField(blank=True, null=True)
+
+
 class Weapon(CloudinaryIconUrlModel):
     class WeaponTypes(models.TextChoices):
         ASSAULT_RIFLE = 'Assault rifle', 'Assault rifle'
@@ -36,8 +71,10 @@ class Weapon(CloudinaryIconUrlModel):
         max_length=50,
         choices=WeaponTypes.choices
     )
-#     mag_size = models.IntegerField(blank=True, null=True, default=None)
-#     projectile_speed = models.IntegerField()
+    # projectile_speed = models.OneToOneField(
+    #     to=RangeStat,
+    #     on_delete=models.CASCADE
+    # )
 #
 #     @property
 #     def firemods(self):
@@ -80,6 +117,14 @@ class Weapon(CloudinaryIconUrlModel):
     def add_ammo(self, ammo):
         new_ammo = WeaponAmmo(weapon=self, ammo=ammo)
         new_ammo.save()
+
+    def add_mag(self, modificator, size):
+        new_mag = WeaponMag(
+            weapon=self,
+            modificator=modificator,
+            size=size
+        )
+        new_mag.save()
 
     @property
     def icon_url(self):
@@ -184,7 +229,7 @@ class Ammo(CloudinaryIconUrlModel):
 class WeaponAmmo(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     ammo = models.ForeignKey(
         to=Ammo,
@@ -195,33 +240,23 @@ class WeaponAmmo(models.Model):
         return f'{self.weapon.name} --> {self.ammo.name}'
 
 
-class Modificator(CloudinaryIconUrlModel):
-    slug = models.SlugField(unique=True, blank=True)
-    name = models.CharField(
-        max_length=127,
-        unique=True
+class WeaponMag(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+        related_name='mags'
     )
-    icon = CloudinaryField(
-        resource_type='image',
-        folder='weapons/modificators/',
-        use_filename=True,
-        unique_filename=False,
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
         blank=True,
-        default='no_image'
+        default=Modificator.objects.get(slug='default').pk
     )
-
-    def icon_url(self):
-        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
-
-    def get_absolute_url(self):
-        return reverse('modificators', kwargs={'slug': self.slug})
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+    size = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.weapon.name} --> {self.modificator.name} --> {self.size}'
+
 
 # class FireMode(CloudinaryIconUrlModel):
 #     slug = models.SlugField(unique=True, blank=True)
@@ -272,16 +307,6 @@ class Modificator(CloudinaryIconUrlModel):
 #         return f'{self.weapon.name} - {self.firemode.name}'
 
 
-
-# class MagSize(models.Model):
-#     weapons
-
-
-
-# class RangeStat(models.Model):
-#     stat_name = models.CharField(max_length=127)
-#     min = models.FloatField(blank=True, null=True)
-#     max = models.FloatField(blank=True, null=True)
 
 
 # class DamageStats(models.Model):

@@ -25,7 +25,7 @@ from .serializers import (
     WeaponSerializer,
     AttachmentSerializer,
     AmmoSerializer,
-    ModificatorSerializer
+    ModificatorSerializer,
 #     FireModeSerializer,
 #     # WeaponFiremodeSerializer
 #     # WeaponDamageSerializer,
@@ -131,7 +131,7 @@ class WeaponAttachmentListAPIView(APIView):
 
         weapon.add_attachment(attachment)
 
-        context['message'] = Messages.SUCCESS['POST'](obj='Legend', name=weapon.name)
+        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
         context['data'] = WeaponSerializer(weapon).data
         return Response(context, status=status.HTTP_200_OK)
 
@@ -152,12 +152,33 @@ class WeaponAmmoListAPIView(APIView):
 
         weapon.add_ammo(ammo)
 
-        context['message'] = Messages.SUCCESS['POST'](obj='Legend', name=weapon.name)
+        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
         context['data'] = WeaponSerializer(weapon).data
         return Response(context, status=status.HTTP_200_OK)
 
-#
-#
+
+class WeaponMagListAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
+    def get(self, request, slug, *args, **kwargs):
+        weapon = get_object_or_404(Weapon, slug=slug)
+        serializer = WeaponMagSerializer(weapon.mags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, slug, *args, **kwargs):
+        context = Context()
+
+        weapon = get_object_or_404(Weapon, slug=slug)
+        modificator = get_object_or_404(Modificator, slug=request.data['modificator_slug'])
+        size = request.data['size']
+
+        weapon.add_mag(modificator, size)
+
+        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
+        context['data'] = WeaponSerializer(weapon).data
+        return Response(context, status=status.HTTP_200_OK)
+
+
 # class WeaponDamageAPIView(APIView):
 #     def post(self, request, slug, format=None):
 #         weapon = get_object_or_404(Weapon, slug=slug)

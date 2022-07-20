@@ -5,6 +5,7 @@ from .models import (
     WeaponAttachment,
     Ammo,
     WeaponAmmo,
+    WeaponMag,
 #   FireMode,
 #   WeaponFiremode,
     Modificator
@@ -20,6 +21,8 @@ admin.site.register(WeaponAttachment)
 
 admin.site.register(Ammo)
 admin.site.register(WeaponAmmo)
+
+admin.site.register(WeaponMag)
 
 # admin.site.register(FireMode)
 # # admin.site.register(WeaponFireMode)

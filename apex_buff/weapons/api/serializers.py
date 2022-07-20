@@ -5,6 +5,7 @@ from ..models import (
     Attachment,
     Ammo,
     Modificator,
+    WeaponMag
     # FireMode,
     # WeaponDamage,
     # DamageStats
@@ -51,9 +52,18 @@ class ModificatorSerializer(serializers.ModelSerializer):
         }
 
 
+class MagSerializer(serializers.ModelSerializer):
+    modificator = ModificatorSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = WeaponMag
+        fields = ['modificator', 'size']
+
+
 class WeaponSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
     ammo = AmmoSerializer(many=True, read_only=True)
+    mags = MagSerializer(many=True, read_only=True)
     # damage = WeaponDamageSerializer(many=False, read_only=True)
     # firemods = WeaponFiremodeSerializer(many=True, read_only=True, source='weapon_firemods')
 
@@ -66,7 +76,7 @@ class WeaponSerializer(serializers.ModelSerializer):
         # ]
         fields = [
             'slug', 'name', 'icon_url', 'icon', 'weapon_type',
-            'attachments', 'ammo'
+            'attachments', 'ammo', 'mags'
         ]
         extra_kwargs = {
             'icon': {'write_only': True},

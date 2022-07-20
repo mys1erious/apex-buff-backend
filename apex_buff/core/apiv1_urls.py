@@ -89,6 +89,12 @@ urlpatterns = [
         view=weapon_views.WeaponAmmoListAPIView.as_view(),
         name='weapon_ammo'
     ),
+    # {% url 'api:weapon_mags' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/mags/',
+        view=weapon_views.WeaponMagListAPIView.as_view(),
+        name='weapon_mags'
+    ),
     # # {% 'api:weapon_fire_modes' weapon.slug %}
     # path(
     #     route='weapons/<slug:slug>/fire_modes/',

@@ -63,7 +63,6 @@ class Ability(CloudinaryIconUrlModel):
         return reverse('abilities', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-
         self.slug = f'{self.legend.slug}-{slugify(self.name)}'
         super().save(*args, **kwargs)
 
