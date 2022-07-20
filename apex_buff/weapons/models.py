@@ -39,9 +39,39 @@ class Modificator(CloudinaryIconUrlModel):
 
 
 class RangeStat(models.Model):
-    name = models.CharField(max_length=127)
+    # Add index by name?
+    class Names(models.TextChoices):
+        PROJECTILE_SPEED = 'projectile speed', 'Projectile speed',
+
+    name = models.CharField(
+        max_length=50,
+        choices=Names.choices
+    )
     min = models.FloatField(blank=True, null=True)
     max = models.FloatField(blank=True, null=True)
+
+    def is_range(self):
+        return not self.min == self.max
+
+    def value_display(self):
+        min = self.min
+        max = self.max
+
+        if min.is_integer() and max.is_integer():
+            min, max = int(min), int(max)
+
+        if min == max:
+            return min
+        return f'{min}-{max}'
+
+    def __str__(self):
+        res = f'{self.name}: '
+        if self.min == self.max:
+            res += str(self.min)
+        else:
+            res += f'{self.min}-{self.max}'
+
+        return res
 
 
 class Weapon(CloudinaryIconUrlModel):
@@ -49,7 +79,7 @@ class Weapon(CloudinaryIconUrlModel):
         ASSAULT_RIFLE = 'Assault rifle', 'Assault rifle'
         SMG = 'SMG', 'SMG'
         LMG = 'LMG', 'LMG'
-        MARKSMAN_WEAPON = 'Marksman weapon', 'Marksman weapon'
+        MARKSMAN_WEAPON = 'Marksmanweapon', 'Marksman weapon'
         SNIPER_RIFLE = 'Sniper rifle', 'Sniper rifle'
         SHOTGUN = 'Shotgun', 'Shotgun'
         PISTOL = 'Pistol', 'Pistol'
@@ -71,10 +101,12 @@ class Weapon(CloudinaryIconUrlModel):
         max_length=50,
         choices=WeaponTypes.choices
     )
-    # projectile_speed = models.OneToOneField(
-    #     to=RangeStat,
-    #     on_delete=models.CASCADE
-    # )
+    projectile_speed = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
 #
 #     @property
 #     def firemods(self):

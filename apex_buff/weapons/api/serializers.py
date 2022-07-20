@@ -5,7 +5,8 @@ from ..models import (
     Attachment,
     Ammo,
     Modificator,
-    WeaponMag
+    WeaponMag,
+    RangeStat
     # FireMode,
     # WeaponDamage,
     # DamageStats
@@ -60,10 +61,24 @@ class MagSerializer(serializers.ModelSerializer):
         fields = ['modificator', 'size']
 
 
+class RangeStatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RangeStat
+        fields = ['name', 'min', 'max']
+        extra_kwargs = {
+            'name': {'write_only': True},
+            'min': {'write_only': True},
+            'max': {'write_only': True}
+        }
+
+
 class WeaponSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
     ammo = AmmoSerializer(many=True, read_only=True)
     mags = MagSerializer(many=True, read_only=True)
+    projectile_speed = RangeStatSerializer(many=False, required=False)
+    # projectile_speed = serializers.ReadOnlyField(source='projectile_speed.value_display', read_only=True)
+
     # damage = WeaponDamageSerializer(many=False, read_only=True)
     # firemods = WeaponFiremodeSerializer(many=True, read_only=True, source='weapon_firemods')
 
@@ -76,12 +91,29 @@ class WeaponSerializer(serializers.ModelSerializer):
         # ]
         fields = [
             'slug', 'name', 'icon_url', 'icon', 'weapon_type',
-            'attachments', 'ammo', 'mags'
+            'attachments', 'ammo', 'mags', 'projectile_speed'
         ]
         extra_kwargs = {
             'icon': {'write_only': True},
             'icon_url': {'read_only': True}
         }
+
+    def update(self, instance, validated_data):
+        projectile_speed_data = validated_data.pop('projectile_speed')
+        projectile_speed = RangeStat.objects.create(**projectile_speed_data)
+
+        instance.projectile_speed = projectile_speed
+        instance.save()
+
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        try:
+            rep['projectile_speed'] = instance.projectile_speed.value_display()
+        except AttributeError:
+            pass
+        return rep
 
 
 # # class DamageStatsSerializer(serializers.ModelSerializer):

@@ -26,6 +26,7 @@ from .serializers import (
     AttachmentSerializer,
     AmmoSerializer,
     ModificatorSerializer,
+    MagSerializer
 #     FireModeSerializer,
 #     # WeaponFiremodeSerializer
 #     # WeaponDamageSerializer,
@@ -113,6 +114,30 @@ class WeaponDetailAPIView(APIView):
         serializer = WeaponSerializer(weapon, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def put(self, request, slug, format=None):
+        context = Context()
+        weapon = get_object_or_404(Weapon, slug=slug)
+
+        serializer = WeaponSerializer(weapon, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+
+            context['message'] = Messages.SUCCESS['PUT'](obj='Weapon', name=weapon.name)
+            context['data'] = serializer.data
+            return Response(context, status=status.HTTP_200_OK)
+
+        context['message'] = Messages.ERROR['PUT'](obj='Weapon', name=weapon.name)
+        context['errors'] = serializer.errors
+        return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+    # def patch(self, request, slug, format=None):
+    #     weapon = get_object_or_404(Weapon, slug=slug)
+    #     serializer = WeaponSerializer(weapon, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return JsonResponse(code=201, data=serializer.data)
+    #     return JsonResponse(code=400, data="wrong parameters")
+
 
 # Make Detail View?
 class WeaponAttachmentListAPIView(APIView):
@@ -162,7 +187,7 @@ class WeaponMagListAPIView(APIView):
 
     def get(self, request, slug, *args, **kwargs):
         weapon = get_object_or_404(Weapon, slug=slug)
-        serializer = WeaponMagSerializer(weapon.mags, many=True)
+        serializer = MagSerializer(weapon.mags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, slug, *args, **kwargs):

@@ -8,8 +8,8 @@ from .models import (
     WeaponMag,
 #   FireMode,
 #   WeaponFiremode,
-    Modificator
-#   RangeStat,
+    Modificator,
+    RangeStat,
 #   DamageStats
 )
 
@@ -28,6 +28,6 @@ admin.site.register(WeaponMag)
 # # admin.site.register(WeaponFireMode)
 
 admin.site.register(Modificator)
-# admin.site.register(RangeStat)
+admin.site.register(RangeStat)
 
 # # admin.site.register(DamageStats)
