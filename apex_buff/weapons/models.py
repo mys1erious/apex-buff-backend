@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection
 from django.urls import reverse
 from django.utils.text import slugify
 
@@ -51,7 +51,10 @@ class RangeStat(models.Model):
         PROJECTILE_SPEED = 'projectile speed', 'Projectile Speed',
         BODY_DAMAGE = 'body damage', 'Body Damage',
         HEAD_DAMAGE = 'head damage', 'Head Damage',
-        Legs_DAMAGE = 'legs damage', 'Legs Damage',
+        LEGS_DAMAGE = 'legs damage', 'Legs Damage',
+        RPM = 'rpm', 'Round Per Minute',
+        DPS = 'dps', 'Damage Per Second',
+        TTK = 'ttk', 'Time To Kill'
 
     name = models.CharField(
         max_length=50,
@@ -122,7 +125,9 @@ class Weapon(CloudinaryIconUrlModel):
     @property
     def attachments(self):
         # Rework for faster performance
-        attachment_ids = WeaponAttachment.objects.filter(weapon=self).values_list('attachment', flat=True)
+        attachment_ids = WeaponAttachment.objects.filter(weapon=self)\
+            .select_related('attachment')\
+            .values_list('attachment', flat=True)
         attachments = Attachment.objects.in_bulk(id_list=list(attachment_ids))
         return attachments.values()
 
@@ -162,21 +167,25 @@ class Weapon(CloudinaryIconUrlModel):
         )
         new_damage.save()
 
-    #     @property
-    #     def firemods(self):
-    #         firemode_slugs = WeaponFiremode.objects.filter(
-    #             weapon=self
-    #         ).values_list('firemode__slug', flat=True)
-    #
-    #         firemode_slugs_list = list(firemode_slugs)
-    #         firemods = FireMode.objects.in_bulk(id_list=firemode_slugs_list, field_name='slug')
-    #
-    #         return firemods.values()
-    #
-    #     @property
-    #     def weapon_firemods(self):
-    #         weapon_firemodes = WeaponFiremode.objects.filter(weapon=self)
-    #         return weapon_firemodes
+    @property
+    def fire_modes(self):
+        fire_modes = WeaponFireMode.objects.filter(weapon=self) \
+            .select_related('fire_mode', 'damage_stats')
+        return fire_modes
+
+    def add_fire_mode(self, modificator, fire_mode, rpm, dps, ttk):
+        new_damage_stats = DamageStats.objects.create(
+            modificator=modificator,
+            rpm=rpm, dps=dps, ttk=ttk
+        )
+        new_damage_stats.save()
+
+        new_fire_mode = WeaponFireMode(
+            weapon=self,
+            fire_mode=fire_mode,
+            damage_stats=new_damage_stats
+        )
+        new_fire_mode.save()
 
     @property
     def icon_url(self):
@@ -227,7 +236,8 @@ class Attachment(CloudinaryIconUrlModel):
 class WeaponAttachment(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='weapon_attachments'
     )
     attachment = models.ForeignKey(
         to=Attachment,
@@ -350,50 +360,80 @@ class WeaponDamage(models.Model):
         return f'{self.weapon.name} --> {self.modificator.name}: {self.body=}, {self.head=}, {self.legs=}'
 
 
-# class FireMode(CloudinaryIconUrlModel):
-#     slug = models.SlugField(unique=True, blank=True)
-#     name = models.CharField(
-#         max_length=127,
-#         unique=True
-#     )
-#     icon = CloudinaryField(
-#         resource_type='image',
-#         folder='weapons/firemods/',
-#         use_filename=True,
-#         unique_filename=False,
-#         blank=True,
-#         default='no_image'
-#     )
-#
-#     def icon_url(self):
-#         return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
-#
-#     def get_absolute_url(self):
-#         return reverse('firemods', kwargs={'slug': self.slug})
-#
-#     def save(self, *args, **kwargs):
-#         self.slug = slugify(self.name)
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return self.name
+class FireMode(CloudinaryIconUrlModel):
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=127,
+        unique=True
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/firemods/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('firemods', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
-# class WeaponFireMode(models.Model):
-#     weapon = models.ForeignKey(
-#         to=Weapon,
-#         on_delete=models.CASCADE
-#     )
-#     firemode = models.ForeignKey(
-#         to=FireMode,
-#         on_delete=models.CASCADE
-#     )
-#     damage_stats = models.OneToOneField(
-#         to=DamageStats,
-#         on_delete=models.CASCADE,
-#         blank=True,
-#         null=True
-#     )
-#
-#     def __str__(self):
-#         return f'{self.weapon.name} - {self.firemode.name}'
+class DamageStats(models.Model):
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
+        blank=True,
+        default=Modificator.objects.get(slug='default').pk
+    )
+    rpm = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='rpm'
+    )
+    dps = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='dps'
+    )
+    ttk = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='ttk'
+    )
+
+
+class WeaponFireMode(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE
+    )
+    fire_mode = models.ForeignKey(
+        to=FireMode,
+        on_delete=models.CASCADE
+    )
+    damage_stats = models.OneToOneField(
+        to=DamageStats,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f'{self.weapon.name} - {self.fire_mode.name}'
