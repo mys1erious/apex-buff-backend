@@ -95,24 +95,18 @@ urlpatterns = [
         view=weapon_views.WeaponMagListAPIView.as_view(),
         name='weapon_mags'
     ),
+    # {% url 'api:weapon_damage' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/damage/',
+        view=weapon_views.WeaponDamageAPIView.as_view(),
+        name='weapon_damage'
+    ),
     # # {% 'api:weapon_fire_modes' weapon.slug %}
     # path(
     #     route='weapons/<slug:slug>/fire_modes/',
     #     view=weapon_views.WeaponFireModeListAPIView.as_view(),
     #     name='weapon_fire_modes'
-    # ),
-    # # {% url 'api:weapon_damage' weapon.slug %}
-    # path(
-    #     route='weapons/<slug:slug>/damage/',
-    #     view=weapon_views.WeaponDamageAPIView.as_view(),
-    #     name='weapon_damage'
-    # ),
-    # # {% 'api:weapon_fire_modes' weapon.slug fire_mode.slug %}
-    # path(
-    #     route='weapons/<slug:slug>/fire_modes/<slug:fire_mode_slug>',
-    #     view=weapon_views.WeaponFireModeDetailAPIView.as_view(),
-    #     name='weapon_fire_modes'
-    # ),
+    # )
 
 
     # -- Attachments --

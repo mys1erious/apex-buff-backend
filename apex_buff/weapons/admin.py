@@ -6,11 +6,12 @@ from .models import (
     Ammo,
     WeaponAmmo,
     WeaponMag,
+    WeaponDamage,
 #   FireMode,
 #   WeaponFiremode,
+#   DamageStats
     Modificator,
     RangeStat,
-#   DamageStats
 )
 
 
@@ -24,10 +25,11 @@ admin.site.register(WeaponAmmo)
 
 admin.site.register(WeaponMag)
 
+admin.site.register(WeaponDamage)
+
 # admin.site.register(FireMode)
 # # admin.site.register(WeaponFireMode)
+# # admin.site.register(DamageStats)
 
 admin.site.register(Modificator)
 admin.site.register(RangeStat)
-
-# # admin.site.register(DamageStats)

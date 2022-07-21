@@ -10,10 +10,17 @@ from cloudinary.models import CloudinaryField
 
 
 class Modificator(CloudinaryIconUrlModel):
+    class Names(models.TextChoices):
+        DEFAULT = 'default', 'Default'
+        MODDED_LOADER = 'modded loader', 'Modded Loader'
+        SNIPER_AMMO_AMPED = 'sniper ammo amped', 'Sniper Ammo Amped'
+        DOUBLE_TAP_TRIGGER = 'double tap trigger', 'Double Tap Trigger'
+        HEAVY_ROUNDS_REVVED_UP = 'heavy rounds revved up', 'Heavy Rounds Revved Up'
     slug = models.SlugField(unique=True, blank=True)
     name = models.CharField(
         max_length=127,
-        unique=True
+        unique=True,
+        choices=Names.choices
     )
     icon = CloudinaryField(
         resource_type='image',
@@ -41,7 +48,10 @@ class Modificator(CloudinaryIconUrlModel):
 class RangeStat(models.Model):
     # Add index by name?
     class Names(models.TextChoices):
-        PROJECTILE_SPEED = 'projectile speed', 'Projectile speed',
+        PROJECTILE_SPEED = 'projectile speed', 'Projectile Speed',
+        BODY_DAMAGE = 'body damage', 'Body Damage',
+        HEAD_DAMAGE = 'head damage', 'Head Damage',
+        Legs_DAMAGE = 'legs damage', 'Legs Damage',
 
     name = models.CharField(
         max_length=50,
@@ -103,30 +113,11 @@ class Weapon(CloudinaryIconUrlModel):
     )
     projectile_speed = models.OneToOneField(
         to=RangeStat,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        related_name='projectile_speed'
     )
-#
-#     @property
-#     def firemods(self):
-#         firemode_slugs = WeaponFiremode.objects.filter(
-#             weapon=self
-#         ).values_list('firemode__slug', flat=True)
-#
-#         firemode_slugs_list = list(firemode_slugs)
-#         firemods = FireMode.objects.in_bulk(id_list=firemode_slugs_list, field_name='slug')
-#
-#         return firemods.values()
-#
-#     @property
-#     def weapon_firemods(self):
-#         weapon_firemodes = WeaponFiremode.objects.filter(weapon=self)
-#         return weapon_firemodes
-
-    # @staticmethod
-    # def all_weapons():
-    #     return Weapon.objects.select_related('legend_type').prefetch_related('abilities').all()
 
     @property
     def attachments(self):
@@ -157,6 +148,35 @@ class Weapon(CloudinaryIconUrlModel):
             size=size
         )
         new_mag.save()
+
+    @property
+    def damage(self):
+        damage = WeaponDamage.objects.filter(weapon=self)
+        return damage
+
+    def add_damage(self, modificator, body, head, legs):
+        new_damage = WeaponDamage(
+            weapon=self,
+            modificator=modificator,
+            body=body, head=head, legs=legs
+        )
+        new_damage.save()
+
+    #     @property
+    #     def firemods(self):
+    #         firemode_slugs = WeaponFiremode.objects.filter(
+    #             weapon=self
+    #         ).values_list('firemode__slug', flat=True)
+    #
+    #         firemode_slugs_list = list(firemode_slugs)
+    #         firemods = FireMode.objects.in_bulk(id_list=firemode_slugs_list, field_name='slug')
+    #
+    #         return firemods.values()
+    #
+    #     @property
+    #     def weapon_firemods(self):
+    #         weapon_firemodes = WeaponFiremode.objects.filter(weapon=self)
+    #         return weapon_firemodes
 
     @property
     def icon_url(self):
@@ -290,6 +310,46 @@ class WeaponMag(models.Model):
         return f'{self.weapon.name} --> {self.modificator.name} --> {self.size}'
 
 
+class WeaponDamage(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+        null=True,
+        default=None,
+        # related_name='damage'
+    )
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
+        blank=True,
+        default=Modificator.objects.get(slug='default').pk
+    )
+    body = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='body'
+    )
+    head = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='head'
+    )
+    legs = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='legs'
+    )
+
+    def __str__(self):
+        return f'{self.weapon.name} --> {self.modificator.name}: {self.body=}, {self.head=}, {self.legs=}'
+
+
 # class FireMode(CloudinaryIconUrlModel):
 #     slug = models.SlugField(unique=True, blank=True)
 #     name = models.CharField(
@@ -337,47 +397,3 @@ class WeaponMag(models.Model):
 #
 #     def __str__(self):
 #         return f'{self.weapon.name} - {self.firemode.name}'
-
-
-
-
-# class DamageStats(models.Model):
-#     rpm_min = models.FloatField(blank=True, null=True, default=None)
-#     rpm_max = models.FloatField(blank=True, null=True, default=None)
-#     dps_min = models.FloatField(blank=True, null=True, default=None)
-#     dps_max = models.FloatField(blank=True, null=True, default=None)
-#     ttk_min = models.FloatField(blank=True, null=True, default=None)
-#     ttk_max = models.FloatField(blank=True, null=True, default=None)
-#
-#     def stat_is_range(self, mn, mx):
-#         if mn == mx:
-#             return True
-#         return False
-#
-#     @property
-#     def rpm_is_range(self):
-#         return self.stat_is_range(self.rpm_min, self.rpm_max)
-#
-#     @property
-#     def dps_is_range(self):
-#         return self.stat_is_range(self.dps_min, self.dps_max)
-#
-#     @property
-#     def ttk_is_range(self):
-#         return self.stat_is_range(self.ttk_min, self.ttk_max)
-
-
-# class WeaponDamage(models.Model):
-#     weapon = models.OneToOneField(
-#         to=Weapon,
-#         on_delete=models.CASCADE,
-#         null=True,
-#         default=None,
-#         related_name='damage'
-#     )
-#     body = models.IntegerField(blank=True, null=True)
-#     head = models.IntegerField(blank=True, null=True)
-#     legs = models.IntegerField(blank=True, null=True)
-#
-#     def __str__(self):
-#         return f'{self.weapon.name}: head={self.head}, body={self.body}, legs={self.legs}'

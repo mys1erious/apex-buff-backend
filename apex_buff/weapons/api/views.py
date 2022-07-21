@@ -15,21 +15,20 @@ from ..models import (
     Weapon,
     Attachment,
     Ammo,
-    Modificator
-#     WeaponAmmo,
+    WeaponDamage,
+    Modificator,
+    RangeStat
 #     FireMode,
-#     # WeaponFiremode
-#     # WeaponDamage,
 )
 from .serializers import (
     WeaponSerializer,
     AttachmentSerializer,
     AmmoSerializer,
+    MagSerializer,
+    DamageSerializer,
     ModificatorSerializer,
-    MagSerializer
-#     FireModeSerializer,
-#     # WeaponFiremodeSerializer
-#     # WeaponDamageSerializer,
+#    FireModeSerializer,
+#    WeaponFiremodeSerializer
 )
 
 
@@ -106,7 +105,7 @@ class WeaponListAPIView(APIView):
 
 
 class WeaponDetailAPIView(APIView):
-    # Add PUT, DELETE methods
+    # Add DELETE methods
     permission_classes = (IsAdminOrReadOnly,)
 
     def get(self, request, slug, format=None):
@@ -114,6 +113,7 @@ class WeaponDetailAPIView(APIView):
         serializer = WeaponSerializer(weapon, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    # Is it okay to use partial in PUT or should it be moved ti PATCH?
     def put(self, request, slug, format=None):
         context = Context()
         weapon = get_object_or_404(Weapon, slug=slug)
@@ -130,16 +130,12 @@ class WeaponDetailAPIView(APIView):
         context['errors'] = serializer.errors
         return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
-    # def patch(self, request, slug, format=None):
-    #     weapon = get_object_or_404(Weapon, slug=slug)
-    #     serializer = WeaponSerializer(weapon, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return JsonResponse(code=201, data=serializer.data)
-    #     return JsonResponse(code=400, data="wrong parameters")
+
+# ---
+# Make Detail Views for Weapon dependencies(attachment, ammo, mag, damage, fire_mode) ?
+# ---
 
 
-# Make Detail View?
 class WeaponAttachmentListAPIView(APIView):
     permission_classes = (IsAdminOrReadOnly,)
 
@@ -156,7 +152,7 @@ class WeaponAttachmentListAPIView(APIView):
 
         weapon.add_attachment(attachment)
 
-        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
+        context['message'] = Messages.SUCCESS['POST'](obj='WeaponAttachment', name=weapon.name)
         context['data'] = WeaponSerializer(weapon).data
         return Response(context, status=status.HTTP_200_OK)
 
@@ -177,7 +173,7 @@ class WeaponAmmoListAPIView(APIView):
 
         weapon.add_ammo(ammo)
 
-        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
+        context['message'] = Messages.SUCCESS['POST'](obj='WeaponAmmo', name=weapon.name)
         context['data'] = WeaponSerializer(weapon).data
         return Response(context, status=status.HTTP_200_OK)
 
@@ -194,12 +190,67 @@ class WeaponMagListAPIView(APIView):
         context = Context()
 
         weapon = get_object_or_404(Weapon, slug=slug)
-        modificator = get_object_or_404(Modificator, slug=request.data['modificator_slug'])
+
+        try:
+            modificator_slug = request.data['modificator_slug']
+        except KeyError:
+            context['message'] = Messages.ERROR['POST'](obj='WeaponMag', name=weapon.name)
+            context['detail'] = 'modificator_slug wasn`t provided.'
+            return Response(context, status=status.HTTP_200_OK)
+
+        modificator = get_object_or_404(Modificator, slug=modificator_slug)
         size = request.data['size']
 
         weapon.add_mag(modificator, size)
 
-        context['message'] = Messages.SUCCESS['POST'](obj='Weapon', name=weapon.name)
+        context['message'] = Messages.SUCCESS['POST'](obj='WeaponMag', name=weapon.name)
+        context['data'] = WeaponSerializer(weapon).data
+        return Response(context, status=status.HTTP_200_OK)
+
+
+class WeaponDamageAPIView(APIView):
+    permission_classes = (IsAdminOrReadOnly,)
+
+    def get(self, request, slug, format=None):
+        weapon = get_object_or_404(Weapon, slug=slug)
+        serializer = DamageSerializer(weapon.damage, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, slug, format=None):
+        context = Context()
+
+        weapon = get_object_or_404(Weapon, slug=slug)
+
+        try:
+            modificator_slug = request.data['modificator_slug']
+        except KeyError:
+            context['message'] = Messages.ERROR['POST'](obj='WeaponDamage', name=weapon.name)
+            context['detail'] = 'modificator_slug wasn`t provided.'
+            return Response(context, status=status.HTTP_200_OK)
+
+        modificator = get_object_or_404(Modificator, slug=modificator_slug)
+
+        # Move the logic out of view ?
+        damage_keys = ['body', 'head', 'legs']
+        damage_instances = []
+        for key in damage_keys:
+            cur_data = request.data[key]
+            cur_damage = RangeStat.objects.create(
+                name=f'{key} damage',
+                min=cur_data['min'],
+                max=cur_data['max']
+            )
+            damage_instances.append(cur_damage)
+
+        weapon.add_damage(
+            modificator=modificator,
+            body=damage_instances[0],
+            head=damage_instances[1],
+            legs=damage_instances[2],
+        )
+
+        context['message'] = Messages.SUCCESS['POST'](obj='WeaponDamage', name=weapon.name)
         context['data'] = WeaponSerializer(weapon).data
         return Response(context, status=status.HTTP_200_OK)
 

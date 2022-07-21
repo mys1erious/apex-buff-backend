@@ -4,11 +4,11 @@ from ..models import (
     Weapon,
     Attachment,
     Ammo,
-    Modificator,
     WeaponMag,
-    RangeStat
+    WeaponDamage,
+    Modificator,
+    RangeStat,
     # FireMode,
-    # WeaponDamage,
     # DamageStats
 )
 
@@ -53,14 +53,6 @@ class ModificatorSerializer(serializers.ModelSerializer):
         }
 
 
-class MagSerializer(serializers.ModelSerializer):
-    modificator = ModificatorSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = WeaponMag
-        fields = ['modificator', 'size']
-
-
 class RangeStatSerializer(serializers.ModelSerializer):
     class Meta:
         model = RangeStat
@@ -72,14 +64,54 @@ class RangeStatSerializer(serializers.ModelSerializer):
         }
 
 
+# Rework 'if rep['modificator']['name'] == instance.modificator.Names.DEFAULT.label' to be in model
+#   to keep serializers more dry
+class MagSerializer(serializers.ModelSerializer):
+    modificator = ModificatorSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = WeaponMag
+        fields = ['modificator', 'size']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        try:
+            if rep['modificator']['name'] == instance.modificator.Names.DEFAULT.label:
+                del rep['modificator']
+        except AttributeError:
+            pass
+        return rep
+
+
+class DamageSerializer(serializers.ModelSerializer):
+    modificator = ModificatorSerializer(many=False, read_only=True)
+    body = RangeStatSerializer(many=False, required=False)
+    head = RangeStatSerializer(many=False, required=False)
+    legs = RangeStatSerializer(many=False, required=False)
+
+    class Meta:
+        model = WeaponDamage
+        fields = ['modificator', 'body', 'head', 'legs']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        try:
+            if rep['modificator']['name'] == instance.modificator.Names.DEFAULT.label:
+                del rep['modificator']
+            rep['body'] = instance.body.value_display()
+            rep['head'] = instance.head.value_display()
+            rep['legs'] = instance.legs.value_display()
+        except AttributeError:
+            pass
+        return rep
+
+
 class WeaponSerializer(serializers.ModelSerializer):
     attachments = AttachmentSerializer(many=True, read_only=True)
     ammo = AmmoSerializer(many=True, read_only=True)
     mags = MagSerializer(many=True, read_only=True)
     projectile_speed = RangeStatSerializer(many=False, required=False)
-    # projectile_speed = serializers.ReadOnlyField(source='projectile_speed.value_display', read_only=True)
-
-    # damage = WeaponDamageSerializer(many=False, read_only=True)
+    damage = DamageSerializer(many=True, read_only=True)
     # firemods = WeaponFiremodeSerializer(many=True, read_only=True, source='weapon_firemods')
 
     class Meta:
@@ -91,7 +123,8 @@ class WeaponSerializer(serializers.ModelSerializer):
         # ]
         fields = [
             'slug', 'name', 'icon_url', 'icon', 'weapon_type',
-            'attachments', 'ammo', 'mags', 'projectile_speed'
+            'attachments', 'ammo', 'mags', 'projectile_speed',
+            'damage'
         ]
         extra_kwargs = {
             'icon': {'write_only': True},
@@ -99,6 +132,7 @@ class WeaponSerializer(serializers.ModelSerializer):
         }
 
     def update(self, instance, validated_data):
+        # try:  # Add 'try' for a case when 'projectile_speed' not in 'validated_data'
         projectile_speed_data = validated_data.pop('projectile_speed')
         projectile_speed = RangeStat.objects.create(**projectile_speed_data)
 
