@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'legends',
     'abilities',
     'weapons',
+    'user_stats',
 
     'rest_framework',
     'corsheaders',
