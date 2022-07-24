@@ -3,6 +3,7 @@ from django.urls import path
 from legends.api import views as legend_views
 from abilities.api import views as ability_views
 from weapons.api import views as weapon_views
+from user_stats.api import views as user_stat_views
 
 
 urlpatterns = [
@@ -166,5 +167,14 @@ urlpatterns = [
         route='modificators/<slug:slug>/',
         view=weapon_views.ModificatorRetrieveUpdateDestroyAPIView.as_view(),
         name='modificators'
+    ),
+
+
+    # -- UserStats --
+    # {% url 'api:user_profile' %}
+    path(
+        route='users/profile/',
+        view=user_stat_views.UserProfileAPIView.as_view(),
+        name='user_profile'
     )
 ]

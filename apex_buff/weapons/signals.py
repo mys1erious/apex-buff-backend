@@ -1,4 +1,4 @@
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, pre_delete
 from django.dispatch import receiver
 from .models import Weapon, WeaponDamage, WeaponFireMode, DamageStats
 
@@ -34,7 +34,7 @@ def delete_damage_stats_on_weapon_fire_mode_delete(sender, **kwargs):
         pass
 
 
-@receiver(post_delete, sender=DamageStats)
+@receiver(pre_delete, sender=DamageStats)
 def delete_stat_on_damage_stats_delete(sender, **kwargs):
     try:
         if kwargs['instance'].rpm:

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'legends',
     'abilities',
     'weapons',
+    'user_stats',
 
     'rest_framework',
     'corsheaders',
@@ -160,3 +161,8 @@ SPECTACULAR_SETTINGS = {
     # None will default to DRF's AUTHENTICATION_CLASSES
     'SERVE_AUTHENTICATION': None,
 }
+
+
+# Apex API KEYs
+TRACKER_APEX_API_KEY = get_env_variable('TRACKER_APEX_API_KEY')
+STATUS_APEX_API_KEY = get_env_variable('STATUS_APEX_API_KEY')
