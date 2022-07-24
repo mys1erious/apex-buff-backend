@@ -1,0 +1,11 @@
+Todo:
+-. Main thing: OPTIMIZE QUERIES (473 queries, 122ms on weapons ROFL):D
+-. Make basic endpoint for user stats data
+-. Make data seed more scalable
+-. Make a single APIView where u can POST a whole Legend in 1 request
+
+
+Notes:
+-- Think that Modificator and RangeStat tables is an inefficient solution,
+    but the other 1 I can think of is adding all those Modificators as fields to each table,
+    that also seems inefficient ? in free time get deeper into db design to come up with better solution

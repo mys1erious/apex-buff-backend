@@ -1,10 +1,251 @@
-from django.db import models
+from django.db import models, connection
 from django.urls import reverse
 from django.utils.text import slugify
 
-from core.models import CloudinaryIconUrlModel
+from core.models import (
+    CloudinaryIconUrlModel,
+)
 
 from cloudinary.models import CloudinaryField
+
+
+class Modificator(CloudinaryIconUrlModel):
+    class Names(models.TextChoices):
+        DEFAULT = 'default', 'Default'
+        MODDED_LOADER = 'modded loader', 'Modded Loader'
+        SNIPER_AMMO_AMPED = 'sniper ammo amped', 'Sniper Ammo Amped'
+        DOUBLE_TAP_TRIGGER = 'double tap trigger', 'Double Tap Trigger'
+        HEAVY_ROUNDS_REVVED_UP = 'heavy rounds revved up', 'Heavy Rounds Revved Up'
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=127,
+        unique=True,
+        choices=Names.choices
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/modificators/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('modificators', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class RangeStat(models.Model):
+    # Add index by name?
+    class Names(models.TextChoices):
+        PROJECTILE_SPEED = 'projectile speed', 'Projectile Speed',
+        BODY_DAMAGE = 'body damage', 'Body Damage',
+        HEAD_DAMAGE = 'head damage', 'Head Damage',
+        LEGS_DAMAGE = 'legs damage', 'Legs Damage',
+        RPM = 'rpm', 'Round Per Minute',
+        DPS = 'dps', 'Damage Per Second',
+        TTK = 'ttk', 'Time To Kill'
+
+    name = models.CharField(
+        max_length=50,
+        choices=Names.choices
+    )
+    min = models.FloatField(blank=True, null=True)
+    max = models.FloatField(blank=True, null=True)
+
+    def is_range(self):
+        return not self.min == self.max
+
+    def value_display(self):
+        min = self.min
+        max = self.max
+
+        if min.is_integer() and max.is_integer():
+            min, max = int(min), int(max)
+
+        if min == max:
+            return min
+        return f'{min}-{max}'
+
+    def __str__(self):
+        res = f'{self.name}: '
+        if self.min == self.max:
+            res += str(self.min)
+        else:
+            res += f'{self.min}-{self.max}'
+
+        return res
+
+
+class Weapon(CloudinaryIconUrlModel):
+    class WeaponTypes(models.TextChoices):
+        ASSAULT_RIFLE = 'Assault rifle', 'Assault rifle'
+        SMG = 'SMG', 'SMG'
+        LMG = 'LMG', 'LMG'
+        MARKSMAN_WEAPON = 'Marksmanweapon', 'Marksman weapon'
+        SNIPER_RIFLE = 'Sniper rifle', 'Sniper rifle'
+        SHOTGUN = 'Shotgun', 'Shotgun'
+        PISTOL = 'Pistol', 'Pistol'
+
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=127,
+        unique=True,
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+    weapon_type = models.CharField(
+        max_length=50,
+        choices=WeaponTypes.choices
+    )
+    projectile_speed = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='projectile_speed'
+    )
+
+    @property
+    def attachments(self):
+        # Rework for faster performance
+        attachment_ids = WeaponAttachment.objects.filter(weapon=self)\
+            .select_related('attachment')\
+            .values_list('attachment', flat=True)
+        attachments = Attachment.objects.in_bulk(id_list=list(attachment_ids))
+        return attachments.values()
+
+    def add_attachment(self, attachment):
+        new_attachment = WeaponAttachment(weapon=self, attachment=attachment)
+        new_attachment.save()
+
+    @property
+    def ammo(self):
+        # Rework for faster performance
+        ammo_ids = WeaponAmmo.objects.filter(weapon=self).values_list('ammo', flat=True)
+        ammo = Ammo.objects.in_bulk(id_list=list(ammo_ids))
+        return ammo.values()
+
+    def add_ammo(self, ammo):
+        new_ammo = WeaponAmmo(weapon=self, ammo=ammo)
+        new_ammo.save()
+
+    def add_mag(self, modificator, size):
+        new_mag = WeaponMag(
+            weapon=self,
+            modificator=modificator,
+            size=size
+        )
+        new_mag.save()
+
+    @property
+    def damage(self):
+        damage = WeaponDamage.objects.filter(weapon=self)
+        return damage
+
+    def add_damage(self, modificator, body, head, legs):
+        new_damage = WeaponDamage(
+            weapon=self,
+            modificator=modificator,
+            body=body, head=head, legs=legs
+        )
+        new_damage.save()
+
+    @property
+    def fire_modes(self):
+        fire_modes = WeaponFireMode.objects.filter(weapon=self) \
+            .select_related('fire_mode', 'damage_stats')
+        return fire_modes
+
+    def add_fire_mode(self, modificator, fire_mode, rpm, dps, ttk):
+        new_damage_stats = DamageStats.objects.create(
+            modificator=modificator,
+            rpm=rpm, dps=dps, ttk=ttk
+        )
+        new_damage_stats.save()
+
+        new_fire_mode = WeaponFireMode(
+            weapon=self,
+            fire_mode=fire_mode,
+            damage_stats=new_damage_stats
+        )
+        new_fire_mode.save()
+
+    @property
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('weapons', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Attachment(CloudinaryIconUrlModel):
+    slug = models.SlugField(unique=True, blank=True)
+    name = models.CharField(
+        max_length=127,
+        unique=True,
+        blank=True
+    )
+    icon = CloudinaryField(
+        resource_type='image',
+        folder='weapons/attachments/',
+        use_filename=True,
+        unique_filename=False,
+        blank=True,
+        default='no_image'
+    )
+
+    @property
+    def icon_url(self):
+        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
+
+    def get_absolute_url(self):
+        return reverse('attachments', kwargs={'slug': self.slug})
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class WeaponAttachment(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+        related_name='weapon_attachments'
+    )
+    attachment = models.ForeignKey(
+        to=Attachment,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f'{self.weapon.name} --> {self.attachment.name}'
 
 
 class Ammo(CloudinaryIconUrlModel):
@@ -47,10 +288,76 @@ class Ammo(CloudinaryIconUrlModel):
         return self.name
 
 
-class DamageStats(models.Model):
-    rpm = models.FloatField(blank=True, null=True, default=None)
-    dps = models.FloatField(blank=True, null=True, default=None)
-    ttk = models.FloatField(blank=True, null=True, default=None)
+class WeaponAmmo(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE
+    )
+    ammo = models.ForeignKey(
+        to=Ammo,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return f'{self.weapon.name} --> {self.ammo.name}'
+
+
+class WeaponMag(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+        related_name='mags'
+    )
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
+        blank=True,
+        default=Modificator.objects.get(slug='default').pk
+    )
+    size = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.weapon.name} --> {self.modificator.name} --> {self.size}'
+
+
+class WeaponDamage(models.Model):
+    weapon = models.ForeignKey(
+        to=Weapon,
+        on_delete=models.CASCADE,
+        null=True,
+        default=None,
+        # related_name='damage'
+    )
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
+        blank=True,
+        default=Modificator.objects.get(slug='default').pk
+    )
+    body = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='body'
+    )
+    head = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='head'
+    )
+    legs = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='legs'
+    )
+
+    def __str__(self):
+        return f'{self.weapon.name} --> {self.modificator.name}: {self.body=}, {self.head=}, {self.legs=}'
 
 
 class FireMode(CloudinaryIconUrlModel):
@@ -82,89 +389,42 @@ class FireMode(CloudinaryIconUrlModel):
         return self.name
 
 
-class Weapon(CloudinaryIconUrlModel):
-    class WeaponTypes(models.TextChoices):
-        ASSAULT_RIFLE = 'Assault rifle', 'Assault rifle'
-        SMG = 'SMG', 'SMG'
-        LMG = 'LMG', 'LMG'
-        MARKSMAN_WEAPON = 'Marksman weapon', 'Marksman weapon'
-        SNIPER_RIFLE = 'Sniper rifle', 'Sniper rifle'
-        SHOTGUN = 'Shotgun', 'Shotgun'
-        PISTOL = 'Pistol', 'Pistol'
-
-    slug = models.SlugField(unique=True, blank=True)
-    name = models.CharField(
-        max_length=127,
-        unique=True,
-    )
-    icon = CloudinaryField(
-        resource_type='image',
-        folder='weapons/',
-        use_filename=True,
-        unique_filename=False,
+class DamageStats(models.Model):
+    modificator = models.ForeignKey(
+        to=Modificator,
+        on_delete=models.CASCADE,
         blank=True,
-        default='no_image'
+        default=Modificator.objects.get(slug='default').pk
     )
-    weapon_type = models.CharField(
-        max_length=50,
-        choices=WeaponTypes.choices
+    rpm = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='rpm'
     )
-    mag_size = models.IntegerField(blank=True, null=True, default=None)
-    projectile_speed = models.IntegerField()
-    ammo = models.ForeignKey(
-        to=Ammo,
-        on_delete=models.SET_NULL,
-        null=True
+    dps = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='dps'
+    )
+    ttk = models.OneToOneField(
+        to=RangeStat,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='ttk'
     )
 
-    @property
-    def firemods(self):
-        firemode_slugs = WeaponFiremode.objects.filter(
-            weapon=self
-        ).values_list('firemode__slug', flat=True)
 
-        firemode_slugs_list = list(firemode_slugs)
-        firemods = FireMode.objects.in_bulk(id_list=firemode_slugs_list, field_name='slug')
-
-        return firemods.values()
-
-    @property
-    def weapon_firemods(self):
-        weapon_firemodes = WeaponFiremode.objects.filter(weapon=self)
-        return weapon_firemodes
-
-    @property
-    def attachments(self):
-        attachment_slugs = WeaponAttachment.objects.filter(
-            weapon=self
-        ).values_list('attachment__slug', flat=True)
-
-        attachment_slugs_list = list(attachment_slugs)
-        attachments = Attachment.objects.in_bulk(id_list=attachment_slugs_list, field_name='slug')
-
-        return attachments.values()
-
-    @property
-    def icon_url(self):
-        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
-
-    def get_absolute_url(self):
-        return reverse('weapons', kwargs={'slug': self.slug})
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
-class WeaponFiremode(models.Model):
+class WeaponFireMode(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
         on_delete=models.CASCADE
     )
-    firemode = models.ForeignKey(
+    fire_mode = models.ForeignKey(
         to=FireMode,
         on_delete=models.CASCADE
     )
@@ -176,88 +436,4 @@ class WeaponFiremode(models.Model):
     )
 
     def __str__(self):
-        return f'{self.weapon.name} - {self.firemode.name}'
-
-
-class WeaponDamage(models.Model):
-    weapon = models.OneToOneField(
-        to=Weapon,
-        on_delete=models.CASCADE,
-        null=True,
-        default=None,
-        related_name='damage'
-    )
-    body = models.IntegerField(blank=True, null=True)
-    head = models.IntegerField(blank=True, null=True)
-    legs = models.IntegerField(blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.weapon.name}: head={self.head}, body={self.body}, legs={self.legs}'
-
-
-class Attachment(CloudinaryIconUrlModel):
-    slug = models.SlugField(unique=True, blank=True)
-    name = models.CharField(
-        max_length=127,
-        unique=True,
-        blank=True
-    )
-    icon = CloudinaryField(
-        resource_type='image',
-        folder='weapons/attachments/',
-        use_filename=True,
-        unique_filename=False,
-        blank=True,
-        default='no_image'
-    )
-
-    @property
-    def icon_url(self):
-        return self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
-
-    def get_absolute_url(self):
-        return reverse('attachments', kwargs={'slug': self.slug})
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
-class WeaponAttachment(models.Model):
-    weapon = models.ForeignKey(
-        to=Weapon,
-        on_delete=models.CASCADE
-    )
-    attachment = models.ForeignKey(
-        to=Attachment,
-        on_delete=models.CASCADE
-    )
-
-    def __str__(self):
-        return f'{self.weapon.name} - {self.attachment.name}'
-
-
-'''
-/weapons/ [GET, POST]
-/weapons/slug/ [GET, PUT, DELETE]
-
-/weapons/attachments/ [GET, POST]
-/weapons/attachments/slug/ [PUT, DELETE]
-
-/weapons/fire-mods/ [GET, POST]
-/weapons/fire-mods/slug/ [PUT, DELETE]
-
-/weapons/ammo/ [GET, POST]
-/weapons/ammo/slug/ [PUT, DELETE]
-
-/weapons/slug/ammo/ [GET, POST, PUT, DELETE]
-
-/weapons/slug/attachments/ [GET, POST]
-/weapons/slug/attachments/attachment-slug/ [PUT, DELETE]
-
-/weapons/slug/fire-mods/ [GET, POST]
-/weapons/slug/fire-mods/fire-mode-slug/ [PUT, DELETE]
-'''
+        return f'{self.weapon.name} - {self.fire_mode.name}'

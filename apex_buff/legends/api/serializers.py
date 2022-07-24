@@ -7,9 +7,19 @@ from ..models import Legend, LegendType
 
 
 class LegendTypeSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='get_name_display', read_only=True)
+
     class Meta:
         model = LegendType
-        fields = ['name', 'icon_url']
+        fields = ['name', 'slug', 'icon', 'icon_url']
+        extra_kwargs = {
+            'icon': {'write_only': True},
+            'icon_url': {'read_only': True}
+        }
+
+
+class LegendLegendTypeSerializer(serializers.Serializer):
+    slug = serializers.SlugField()
 
 
 class LegendSerializer(serializers.ModelSerializer):
@@ -28,6 +38,7 @@ class LegendSerializer(serializers.ModelSerializer):
             'icon_url': {'read_only': True}
         }
 
-
-class LegendLegendTypeSerializer(serializers.Serializer):
-    legend_type = serializers.CharField()
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['gender'] = instance.get_gender_display()
+        return rep

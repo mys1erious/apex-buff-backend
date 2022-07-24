@@ -21,9 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(os.path.join(BASE_DIR, 'apex_buff'))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env_variable('SECRET_KEY')
 
@@ -40,6 +37,7 @@ INSTALLED_APPS = [
     'legends',
     'abilities',
     'weapons',
+    'user_stats',
 
     'rest_framework',
     'corsheaders',
@@ -61,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -163,3 +161,8 @@ SPECTACULAR_SETTINGS = {
     # None will default to DRF's AUTHENTICATION_CLASSES
     'SERVE_AUTHENTICATION': None,
 }
+
+
+# Apex API KEYs
+TRACKER_APEX_API_KEY = get_env_variable('TRACKER_APEX_API_KEY')
+STATUS_APEX_API_KEY = get_env_variable('STATUS_APEX_API_KEY')

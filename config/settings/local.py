@@ -36,12 +36,10 @@ cloudinary.config(
 # Debug Toolbar
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
-
 INTERNAL_IPS = [
     '127.0.0.1',
     'localhost'
 ]
-
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.history.HistoryPanel',
