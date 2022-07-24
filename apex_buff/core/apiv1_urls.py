@@ -4,9 +4,39 @@ from legends.api import views as legend_views
 from abilities.api import views as ability_views
 from weapons.api import views as weapon_views
 
-urlpatterns = [
 
-    # Legends
+urlpatterns = [
+    # -- Abilities --
+    # {% url 'api:abilities' %}
+    path(
+        route='abilities/',
+        view=ability_views.AbilityListAPIView.as_view(),
+        name='abilities'
+    ),
+    # {% url 'api:abilities' ability.slug %}
+    path(
+        route='abilities/<slug:slug>/',
+        view=ability_views.AbilityDetailAPIView.as_view(),
+        name='abilities'
+    ),
+
+
+    # -- LegendTypes --
+    # {% url 'api:legend_types' %}
+    path(
+        route='legend_types/',
+        view=legend_views.LegendTypeListAPIView.as_view(),
+        name='legend_types'
+    ),
+    # {% url 'api:legend_types' legend_type.slug %}
+    path(
+        route='legend_types/<slug:slug>/',
+        view=legend_views.LegendTypeDetailAPIView.as_view(),
+        name='legend_types'
+    ),
+
+
+    # -- Legends --
     # {% url 'api:legends' %}
     path(
         route='legends/',
@@ -23,59 +53,63 @@ urlpatterns = [
     path(
         route='legends/<slug:slug>/type/',
         view=legend_views.LegendLegendTypeDetailAPIView.as_view(),
-        name='legends_type'
+        name='legends-type'
     ),
     # {% url 'api:legends_abilities' legend.slug %}
     path(
         route='legends/<slug:slug>/abilities/',
         view=legend_views.LegendAbilityListAPIView.as_view(),
-        name='legends_abilities'
+        name='legends-abilities'
     ),
-    # {% url 'api:legends_ability' legend.slug ability.slug%}
+    # {% url 'api:legends_ability' legend.slug ability.slug %}
 
-    # LegendTypes
-    # {% url 'api:legend_types' %}
+
+    # -- Weapons --
+    # {% url 'api:weapons' %}
     path(
-        route='legend_types/',
-        view=legend_views.LegendTypeListAPIView.as_view(),
-        name='legend_types'
+        route='weapons/',
+        view=weapon_views.WeaponListAPIView.as_view(),
+        name='weapons'
     ),
-    # {% url 'api:legend_types' legend_type.slug %}
+    # {% url 'api:weapons' weapon.slug %}
     path(
-        route='legend_types/<slug:slug>/',
-        view=legend_views.LegendTypeDetailAPIView.as_view(),
-        name='legend_types'
+        route='weapons/<slug:slug>/',
+        view=weapon_views.WeaponDetailAPIView.as_view(),
+        name='weapons'
+    ),
+    # {% url 'api:weapon_attachments' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/attachments/',
+        view=weapon_views.WeaponAttachmentListAPIView.as_view(),
+        name='weapon_attachments'
+    ),
+    # {% url 'api:weapon_ammo' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/ammo/',
+        view=weapon_views.WeaponAmmoListAPIView.as_view(),
+        name='weapon_ammo'
+    ),
+    # {% url 'api:weapon_mags' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/mags/',
+        view=weapon_views.WeaponMagListAPIView.as_view(),
+        name='weapon_mags'
+    ),
+    # {% url 'api:weapon_damage' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/damage/',
+        view=weapon_views.WeaponDamageAPIView.as_view(),
+        name='weapon_damage'
+    ),
+    # {% 'api:weapon_fire_modes' weapon.slug %}
+    path(
+        route='weapons/<slug:slug>/fire_modes/',
+        view=weapon_views.WeaponFireModeAPIView.as_view(),
+        name='weapon_fire_modes'
     ),
 
-    # Abilities
-    # {% url 'api:abilities' %}
-    path(
-        route='abilities/',
-        view=ability_views.AbilityListAPIView.as_view(),
-        name='abilities'
-    ),
-    # {% url 'api:abilities' ability.slug %}
-    path(
-        route='abilities/<slug:slug>/',
-        view=ability_views.AbilityDetailAPIView.as_view(),
-        name='abilities'
-    ),
 
-    # WeaponAmmo
-    # {% url 'api:ammo' %}
-    path(
-        route='ammo/',
-        view=weapon_views.AmmoListCreateAPIView.as_view(),
-        name='ammo'
-    ),
-    # {% url 'api:ammo' ammo.slug %}
-    path(
-        route='ammo/<slug:slug>/',
-        view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
-        name='ammo'
-    ),
-
-    # WeaponAttachments
+    # -- Attachments --
     # {% url 'api:attachments' %}
     path(
         route='attachments/',
@@ -89,61 +123,48 @@ urlpatterns = [
         name='attachments'
     ),
 
-    # WeaponFiremods
-    # {% url 'api:firemods' %}
+
+    # -- Ammo --
+    # {% url 'api:ammo' %}
     path(
-        route='firemods/',
-        view=weapon_views.FireModeListCreateAPIView.as_view(),
-        name='firemods'
+        route='ammo/',
+        view=weapon_views.AmmoListCreateAPIView.as_view(),
+        name='ammo'
     ),
-    # {% url 'api:firemods' firemod.slug %}
+    # {% url 'api:ammo' ammo.slug %}
     path(
-        route='firemods/<slug:slug>/',
-        view=weapon_views.FireModeRetrieveUpdateDestroyAPIView.as_view(),
-        name='firemods'
+        route='ammo/<slug:slug>/',
+        view=weapon_views.AmmoRetrieveUpdateDestroyAPIView.as_view(),
+        name='ammo'
     ),
 
-    # Weapons
-    # {% url 'api:weapons' %}
+
+    # -- FireModes --
+    # {% url 'api:fire_modes' %}
     path(
-        route='weapons/',
-        view=weapon_views.WeaponListAPIView.as_view(),
-        name='weapons'
+        route='fire_modes/',
+        view=weapon_views.FireModeListCreateAPIView.as_view(),
+        name='fire_modes'
     ),
-    # {% url 'api:weapons' weapon.slug %}
+    # {% url 'api:fire_modes' fire_mode.slug %}
     path(
-        route='weapons/<slug:slug>/',
-        view=weapon_views.WeaponDetailAPIView.as_view(),
-        name='weapons'
+        route='fire_modes/<slug:slug>/',
+        view=weapon_views.FireModeRetrieveUpdateDestroyAPIView.as_view(),
+        name='fire_modes'
     ),
-    # {% url 'api:weapon_damage' weapon.slug %}
+
+
+    # -- Modificators --
+    # {% url 'api:modificators' %}
     path(
-        route='weapons/<slug:slug>/damage/',
-        view=weapon_views.WeaponDamageAPIView.as_view(),
-        name='weapon_damage'
+        route='modificators/',
+        view=weapon_views.ModificatorListCreateAPIView.as_view(),
+        name='modificators'
     ),
-    # {% url 'api:weapon_ammo' weapon.slug %}
+    # {% url 'api:modificators' modificator.slug %}
     path(
-        route='weapons/<slug:slug>/ammo/',
-        view=weapon_views.WeaponAmmoAPIView.as_view(),
-        name='weapon_ammo'
-    ),
-    # {% url 'api:weapon_attachments' weapon.slug %}
-    path(
-        route='weapons/<slug:slug>/attachments/',
-        view=weapon_views.WeaponAttachmentAPIView.as_view(),
-        name='weapon_attachments'
-    ),
-    # {% 'api:weapon_firemods' weapon.slug %}
-    path(
-        route='weapons/<slug:slug>/firemods/',
-        view=weapon_views.WeaponFiremodeListAPIView.as_view(),
-        name='weapon_firemods'
-    ),
-    # {% 'api:weapon_firemods' weapon.slug firemode.slug %}
-    path(
-        route='weapons/<slug:slug>/firemods/<slug:firemode_slug>',
-        view=weapon_views.WeaponFiremodeDetailAPIView.as_view(),
-        name='weapon_firemods'
+        route='modificators/<slug:slug>/',
+        view=weapon_views.ModificatorRetrieveUpdateDestroyAPIView.as_view(),
+        name='modificators'
     )
 ]

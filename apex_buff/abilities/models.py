@@ -5,11 +5,6 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from core.models import CloudinaryIconUrlModel
-from legends.models import Legend
-
-
-def upload_to(instance, filename):
-    return f'abilities/{filename}'
 
 
 class Ability(CloudinaryIconUrlModel):
@@ -24,9 +19,12 @@ class Ability(CloudinaryIconUrlModel):
         blank=True
     )
     legend = models.ForeignKey(
-        to=Legend,
+        to='legends.Legend',
         on_delete=models.CASCADE,
-        related_name='abilities'
+        related_name='abilities',
+        blank=True,
+        null=True,
+        default=None
     )
     name = models.CharField(
         max_length=50,
@@ -52,6 +50,10 @@ class Ability(CloudinaryIconUrlModel):
         help_text='Ability cooldown in seconds'
     )
 
+    @staticmethod
+    def all_abilities():
+        return Ability.objects.select_related('legend').all()
+
     @property
     def icon_url(self):
         url = self.icon.build_url(raw_transformation='e_trim/e_bgremoval')
@@ -61,7 +63,7 @@ class Ability(CloudinaryIconUrlModel):
         return reverse('abilities', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
-        self.slug = f'{self.legend.slug}_{slugify(self.name)}'
+        self.slug = f'{self.legend.slug}-{slugify(self.name)}'
         super().save(*args, **kwargs)
 
     def __str__(self):
