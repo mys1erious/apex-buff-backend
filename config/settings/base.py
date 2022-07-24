@@ -164,3 +164,7 @@ SPECTACULAR_SETTINGS = {
     # None will default to DRF's AUTHENTICATION_CLASSES
     'SERVE_AUTHENTICATION': None,
 }
+
+
+# Apex API KEYs
+TRACKER_API_KEY = get_env_variable('TRACKER_APEX_API_KEY')
