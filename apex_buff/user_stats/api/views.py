@@ -8,31 +8,32 @@ from rest_framework.views import APIView
 
 class UserProfileAPIView(APIView):
     def get(self, request, format=None):
-        # platform = origin || xbl || psn
-        # platformUserIdentifier = basically username
+        # platform = PC || PS4 || X1
+
         platform = request.GET.get('platform')
-        platform_user_identifier = request.GET.get('platformUserIdentifier')
+        username = request.GET.get('username')
 
         response = requests.get(
-            url=f'https://public-api.tracker.gg/v2/apex/standard/profile/{platform}/{platform_user_identifier}',
+            url=f'https://api.mozambiquehe.re/bridge?'
+                f'player={username}&platform={platform}&merge=true',
             headers={
-                'TRN-Api-Key': settings.TRACKER_API_KEY,
-                'Accept': 'application/json',
-                'Accept-Encoding': 'gzip'
+                'Authorization': settings.STATUS_APEX_API_KEY
             }
         )
 
         if not response.ok:
             print(response)
+            try:
+                print(response.json())
+            except Exception:
+                pass
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         data = self.process_profile_data(response.json())
-
         return Response(data=data, status=status.HTTP_200_OK)
 
     def process_profile_data(self, data):
-        data = data['data']
-        keys_to_del = ['userInfo', 'expiryDate']
+        keys_to_del = ['realtime', 'mozambiquehere_internal', 'ALS']
 
         for key in keys_to_del:
             del data[key]
