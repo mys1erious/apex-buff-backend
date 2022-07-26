@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import timedelta
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -148,6 +149,11 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=300),
+}
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Schema for Apex Buff API',
