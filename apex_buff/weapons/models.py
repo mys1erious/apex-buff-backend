@@ -1,4 +1,5 @@
 from django.db import models, connection
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.text import slugify
 
@@ -86,6 +87,9 @@ class RangeStat(models.Model):
 
         return res
 
+    class Meta:
+        indexes = [models.Index(fields=['name', ])]
+
 
 class Weapon(CloudinaryIconUrlModel):
     class WeaponTypes(models.TextChoices):
@@ -125,11 +129,10 @@ class Weapon(CloudinaryIconUrlModel):
     @property
     def attachments(self):
         # Rework for faster performance
-        attachment_ids = WeaponAttachment.objects.filter(weapon=self)\
-            .select_related('attachment')\
-            .values_list('attachment', flat=True)
-        attachments = Attachment.objects.in_bulk(id_list=list(attachment_ids))
-        return attachments.values()
+        attachments = Attachment.objects.filter(
+            pk__in=self.weapon_attachments.select_related('attachment').values_list('attachment_id', flat=True)
+        )
+        return attachments
 
     def add_attachment(self, attachment):
         new_attachment = WeaponAttachment(weapon=self, attachment=attachment)
@@ -139,8 +142,8 @@ class Weapon(CloudinaryIconUrlModel):
     def ammo(self):
         # Rework for faster performance
         ammo_ids = WeaponAmmo.objects.filter(weapon=self).values_list('ammo', flat=True)
-        ammo = Ammo.objects.in_bulk(id_list=list(ammo_ids))
-        return ammo.values()
+        ammo = Attachment.objects.filter(pk__in=ammo_ids)
+        return ammo
 
     def add_ammo(self, ammo):
         new_ammo = WeaponAmmo(weapon=self, ammo=ammo)
@@ -156,7 +159,7 @@ class Weapon(CloudinaryIconUrlModel):
 
     @property
     def damage(self):
-        damage = WeaponDamage.objects.filter(weapon=self)
+        damage = WeaponDamage.objects.filter(weapon=self).all()#.select_related('modificator', 'body', 'head', 'legs')
         return damage
 
     def add_damage(self, modificator, body, head, legs):
@@ -169,8 +172,13 @@ class Weapon(CloudinaryIconUrlModel):
 
     @property
     def fire_modes(self):
-        fire_modes = WeaponFireMode.objects.filter(weapon=self) \
-            .select_related('fire_mode', 'damage_stats')
+        fire_modes = WeaponFireMode.objects.filter(weapon=self).all().select_related(
+            'fire_mode',
+            'damage_stats__rpm',
+            'damage_stats__dps',
+            'damage_stats__ttk',
+            'damage_stats__modificator'
+        )
         return fire_modes
 
     def add_fire_mode(self, modificator, fire_mode, rpm, dps, ttk):
@@ -186,6 +194,19 @@ class Weapon(CloudinaryIconUrlModel):
             damage_stats=new_damage_stats
         )
         new_fire_mode.save()
+
+    @staticmethod
+    def get_all_weapons():
+        weapons = Weapon.objects.select_related(
+            'projectile_speed',
+        ).prefetch_related(
+            'damage__modificator',
+            'damage__body',
+            'damage__head',
+            'damage__legs',
+            # 'weapon_attachments__attachment'
+        ).all()
+        return weapons
 
     @property
     def icon_url(self):
@@ -291,7 +312,8 @@ class Ammo(CloudinaryIconUrlModel):
 class WeaponAmmo(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='weapon_ammo'
     )
     ammo = models.ForeignKey(
         to=Ammo,
@@ -306,13 +328,14 @@ class WeaponMag(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
         on_delete=models.CASCADE,
-        related_name='mags'
+        related_name='weapon_mags'
     )
     modificator = models.ForeignKey(
         to=Modificator,
         on_delete=models.CASCADE,
         blank=True,
-        default=Modificator.objects.get(slug='default').pk
+        null=True,
+        default=None
     )
     size = models.IntegerField(blank=True, null=True)
 
@@ -326,13 +349,14 @@ class WeaponDamage(models.Model):
         on_delete=models.CASCADE,
         null=True,
         default=None,
-        # related_name='damage'
+        related_name='damage'
     )
     modificator = models.ForeignKey(
         to=Modificator,
         on_delete=models.CASCADE,
         blank=True,
-        default=Modificator.objects.get(slug='default').pk
+        null=True,
+        default=None
     )
     body = models.OneToOneField(
         to=RangeStat,
@@ -394,7 +418,8 @@ class DamageStats(models.Model):
         to=Modificator,
         on_delete=models.CASCADE,
         blank=True,
-        default=Modificator.objects.get(slug='default').pk
+        null=True,
+        default=None
     )
     rpm = models.OneToOneField(
         to=RangeStat,
@@ -422,7 +447,8 @@ class DamageStats(models.Model):
 class WeaponFireMode(models.Model):
     weapon = models.ForeignKey(
         to=Weapon,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='weapon_fire_modes'
     )
     fire_mode = models.ForeignKey(
         to=FireMode,

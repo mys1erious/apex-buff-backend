@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 from legends.api import views as legend_views
 from abilities.api import views as ability_views
@@ -171,10 +172,22 @@ urlpatterns = [
 
 
     # -- UserStats --
+    # {% url 'api:user_token_obtain_pair' %}
+    path(
+        route='users/token/',
+        view=TokenObtainPairView.as_view(),
+        name='user_token_obtain_pair'
+    ),
+    # {% url 'api:user_token_refresh' %}
+    path(
+        route='users/token/refresh/',
+        view=TokenRefreshView.as_view(),
+        name='user_token_refresh'
+    ),
     # {% url 'api:user_profile' %}
     path(
         route='users/profile/',
         view=user_stat_views.UserProfileAPIView.as_view(),
         name='user_profile'
-    )
+    ),
 ]

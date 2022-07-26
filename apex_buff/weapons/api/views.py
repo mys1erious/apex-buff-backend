@@ -92,8 +92,7 @@ class WeaponListAPIView(APIView):
     permission_classes = (IsAdminOrReadOnly,)
 
     def get(self, request, *args, **kwargs):
-
-        weapons = Weapon.objects.all()
+        weapons = Weapon.get_all_weapons()
         serializer = WeaponSerializer(weapons, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -184,7 +183,7 @@ class WeaponMagListAPIView(APIView):
 
     def get(self, request, slug, *args, **kwargs):
         weapon = get_object_or_404(Weapon, slug=slug)
-        serializer = MagSerializer(weapon.mags, many=True)
+        serializer = MagSerializer(weapon.weapon_mags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, slug, *args, **kwargs):
