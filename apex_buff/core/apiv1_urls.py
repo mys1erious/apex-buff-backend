@@ -191,3 +191,4 @@ urlpatterns = [
         name='user_profile'
     ),
 ]
+
