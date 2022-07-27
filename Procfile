@@ -1,2 +1,1 @@
-web: gunicorn config.wsgi
-web: WSGIPassAuthorization On
+web: python manage.py runserver
