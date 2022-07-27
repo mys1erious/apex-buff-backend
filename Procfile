@@ -1,1 +1,1 @@
-web: gunicorn config.wsgi --WSGIPassAuthorization On
+web: gunicorn config.wsgi
