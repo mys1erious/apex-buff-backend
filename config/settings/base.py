@@ -147,7 +147,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAdminUser',
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -157,8 +157,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=300),
 }
-
-
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Schema for Apex Buff API',
     'DESCRIPTION': 'Schema for API of Apex Legends (not official)',
