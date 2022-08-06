@@ -8,34 +8,32 @@ from rest_framework.views import APIView
 
 class UserProfileAPIView(APIView):
     def get(self, request, format=None):
-        # platform = PC || PS4 || X1
+        # platform = origin || xbl || psn
 
-        platform = request.GET.get('platform')
+        platform = self.handle_platform_type(request.GET.get('platform'))
         username = request.GET.get('username')
 
         response = requests.get(
-            url=f'https://api.mozambiquehe.re/bridge?'
-                f'player={username}&platform={platform}&merge=true',
+            url=f'https://public-api.tracker.gg/v2/apex/standard/profile/{platform}/{username}',
             headers={
-                'Authorization': settings.STATUS_APEX_API_KEY
+                'Trn-Api-Key': settings.TRACKER_APEX_API_KEY
             }
         )
-
-        if not response.ok:
-            print(response)
-            try:
-                print(response.json())
-            except Exception:
-                pass
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        data = self.process_profile_data(response.json())
+        data = response.json()
         return Response(data=data, status=status.HTTP_200_OK)
 
-    def process_profile_data(self, data):
-        keys_to_del = ['realtime', 'mozambiquehere_internal', 'ALS']
+    def handle_platform_type(self, platform):
+        allowed_platforms = ['PC', 'PS4', 'X1', 'origin', 'psn', 'xbl']
 
-        for key in keys_to_del:
-            del data[key]
+        if platform not in allowed_platforms:
+            return 'origin'
 
-        return data
+        status_tracker_apis_map = {
+            'PC': 'origin',
+            'PS4': 'psn',
+            'X1': 'xbl'
+        }
+
+        if platform in status_tracker_apis_map:
+            platform = status_tracker_apis_map[platform]
+        return platform
