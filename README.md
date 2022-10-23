@@ -9,7 +9,7 @@
 
 ## Stack:
 - Backend: Django, DRF, Postgresql, Cloudinary, Heroku
-- Frontend: React
+- Frontend: React, Tailwind
 ### Weapon, Legends data is taken from:
 - https://apexlegends.fandom.com/wiki/Weapon
 - https://apexlegends.fandom.com/wiki/Legend
